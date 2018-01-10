@@ -10,8 +10,9 @@ export function getPhotoJson (latest_json) {
         } 
 }
 
-export function getTipJson () {
+export function getTipJson (tip_json) {
     return {
-        type: TIP_GET
+        type: TIP_GET,
+        value: tip_json.items
     }
 }

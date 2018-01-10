@@ -1,25 +1,25 @@
 <template>
   <div id="app">
-    <Slides />
+    <MainSlides />
   </div>
 </template>
 
 <script>
-import Slides from './components/Slides'
+import MainSlides from './components/MainSlides'
 
 
 
 export default {
   name: 'app', 
    components: {
-    Slides
+    MainSlides
   }
 }
 </script>
 
 <style>
   #app {
-    max-width:900px;
+    width:100%;
     margin:auto;
   }
 
