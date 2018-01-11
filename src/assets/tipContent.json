@@ -1,0 +1,24 @@
+{
+	"tipcontents" : [		
+			"Scroll to find your photos with your favorite players or tap on your player to view all their photos.",		
+			"Scroll to find your photos with your favorite players or tap on your player to view all their photos.",		
+			"Scroll to find your photos with your favorite players or tap on your player to view all their photos."
+	],	
+	
+	"title" : "Winter Weekend 2018",
+	"subtitle" : "Event HighLight",
+	"imageUrl" : "http://i.imgur.com/Lfv18Sb.jpg",
+	
+	"sidebarSetting" : {
+		"sideStatus" : "on",
+		"mode" : "static",
+		"slidesIn" : 300,
+		"stays" : 30
+	},
+	
+	"logoSetting": {
+		"logoStatus" : "on",
+		"logoUrl" : "http://159.89.180.81/logo.png"
+	}	
+	
+}

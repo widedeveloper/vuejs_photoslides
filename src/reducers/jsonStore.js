@@ -14,9 +14,13 @@ export default function jsonStore (state = {
             state = {
                     ...state, tipData: {
                         ...state.tipData,
-                        items: actionValue.items,
+                        
+                        tipcontents: actionValue.tipcontents,
+                        sidebarTitle:actionValue.title,
+                        sidebarSubTitle:actionValue.subtitle,
+                        imgUrl:actionValue.imgUrl,
                         sidebarSetting: actionValue.sidebarSetting,
-                        logoSetting: actionValue.logoSetting
+                        logoSetting : actionValue.logoSetting
                     } 
                 }
             break;

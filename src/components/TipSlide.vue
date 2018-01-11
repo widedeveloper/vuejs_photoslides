@@ -1,7 +1,7 @@
 
     
 <script>
-import { Swipe, SwipeItem} from 'vue-swipe'
+    import { Swipe, SwipeItem} from 'vue-swipe'
     export default {
         components: {
             Swipe,
@@ -20,77 +20,42 @@ import { Swipe, SwipeItem} from 'vue-swipe'
            
             return (
                 <Swipe class="my-swipe" speed={this.swipeOption.speed} auto={this.swipeOption.auto}>
-                {
-                    
-                 this.items.map((item, index)=> 
-                    <SwipeItem class="tipItem">
-                        <div class="image-container">
-                            <img src={item.imageUrl} alt={item.title} />
-                            <div class="title">{item.title}</div>
-                            <div class="subtitle">{item.subtitle}</div>
-                        </div>
-                        
-                        <div class="teaser">
-                            <div class="Tiptitle">Tips</div>
-                            <div class="tipcontent">
-                                {item.tipContents}
-                            </div>
-                        </div>
-                    </SwipeItem>
-                 )                
+                {                    
+                    this.items.map((item, index)=> 
+                        <SwipeItem class="tipItem">
+                            {item}
+                        </SwipeItem>
+                    )                
                 }
                 </Swipe>
             )
-
-
-            // return (
-            //     <div class="TipDiv">
-            //             <div class="image-container">
-            //                 <img src={this.items.imageUrl} alt={this.items.title} />
-            //                 <div class="title">{this.items.title}</div>
-            //                 <div class="subtitle">{this.items.subtitle}</div>
-            //             </div>
-                        
-            //             <div class="teaser">
-            //                 <div class="Tiptitle">Tips</div>
-            //                 <Swipe class="my-swipe" speed={this.swipeOption.speed} auto={this.swipeOption.auto}>
-            //                     {                                    
-            //                         this.items.tipContents.forEach(item=> {
-            //                             return (
-            //                             <SwipeItem class="tipItem">                                    
-            //                                 <div class="tipcontent">
-            //                                     {item}
-            //                                 </div>                                        
-            //                             </SwipeItem>
-            //                             )
-            //                         })                
-            //                     }
-            //                 </Swipe>
-            //             </div>
-
-            //     </div>
-            // )
+           
+            
         },       
-        props: ['items'] ,
+        props: ['items'],
 
-        mounted() {
+        mounted() {           
             this.getFullHeight()
-             window.addEventListener('resize', this.getFullHeight)     
+            window.addEventListener('resize', this.getFullHeight)     
         },
 
         methods: {
             getFullHeight() {
-                // .mint-swipe
+               
                 var windowHeight = window.innerHeight
                 var TipObj = document.getElementsByClassName('mint-swipe')[0];
+                var ImageContentObj = document.getElementsByClassName('image-container')[0];
+                var TiptitleObj = document.getElementsByClassName('Tiptitle')[0]
 
-                console.log(windowHeight)
-                TipObj.style.height = (windowHeight) + 'px'; 
+                
+                //document.getElementsByClassName('teaser').style.height = (windowHeight - ImageContentObj.clientHeight) + 'px'                
                 document.getElementById('photoarea').style.height = (windowHeight) + 'px';
+                document.getElementById('tiparea').style.height = (windowHeight) + 'px';
 
+                TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight -70) + 'px'; 
+                
             }
-        }
-       
+        }       
     }
     
 </script>
@@ -101,13 +66,16 @@ import { Swipe, SwipeItem} from 'vue-swipe'
         display:block;
     }
     .teaser {
-        padding:35px;
-        color:#fff;
        
+        color:#fff;
+        background:#3A5375; 
        
     }
+    .teaser .tipConarea {
+         padding:35px;
+    }
     .teaser .Tiptitle{
-        margin-bottom: 40px;
+       /* margin-bottom: 30px;*/
         font-size:25px;
         font-family: "SF-Pro-Text-bold"
     }
@@ -116,8 +84,13 @@ import { Swipe, SwipeItem} from 'vue-swipe'
         font-size:20px;
     }
     .image-container {       
-        padding: 35px;
-        background-color:#ffffff;      
+         
+        height:400px; 
+    }
+    .image-container .slideToparea {
+         padding: 35px;
+        background-color:#ffffff;  
+        height:100%;
     }
     .image-container img {        
         position:relative;
@@ -145,7 +118,7 @@ import { Swipe, SwipeItem} from 'vue-swipe'
 
 
 
-        .mint-swipe{overflow:hidden;position:relative;  background:#3A5375; height:600px;}
+        .mint-swipe{overflow:hidden;position:relative;height:0px;margin-top: 30px; }
         .mint-swipe-items-wrap{-webkit-transform:translateZ(0);transform:translateZ(0)}
         .mint-swipe-items-wrap>div{position:absolute;-webkit-transform:translateX(-100%);
         transform:translateX(-100%);width:100%;height:100%;display:none}
