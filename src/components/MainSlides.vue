@@ -179,9 +179,7 @@
     beforeCreate(){
         addStoreJson();
         addTipstorJson();  
-    },
 
-    created() {
         store.subscribe(()=>{
             let preReduxStore = store.getState()
             let photoData = preReduxStore.jsonStore.photoData
@@ -204,14 +202,17 @@
                 this.logoInfo.logoStatus= tipData.logoSetting.logoStatus
                 this.logoInfo.logoUrl= tipData.logoSetting.logoUrl
 
-            }
-            
+            }          
             
 
             if(!this.slideImages.start) {
-            this.startAnimation();
+                this.startAnimation();
             }        
-        })   
+        })  
+    },
+
+    created() {
+         
       
     },
 
@@ -285,7 +286,8 @@
         left: 50px;
         background: white;
         padding: 5px;
-        border-radius: 4px;
+        opacity:0.7;
+        border-radius: 10px;
         box-shadow: 1px 1px 1px 1px #decbcb;
         .logoImage {
             width:80px;

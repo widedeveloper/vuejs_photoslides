@@ -11,6 +11,7 @@ export function getPhotoJson (latest_json) {
 }
 
 export function getTipJson (tip_json) {console.log("LSADFASDFASDF",tip_json)
+
     return {
         type: TIP_GET,
         value: {
