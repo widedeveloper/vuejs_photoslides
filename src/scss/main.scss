@@ -14,6 +14,36 @@
 @import "default";
 @import "icons";
 
+@font-face {
+    font-family: "SF-Pro-Display-Bold";
+    src: url('../../static/fonts/SF-Pro-Display-Bold.otf');
+}
+
+@font-face {
+    font-family: "SF-Pro-Display-Medium";
+    src: url('../../static/fonts/SF-Pro-Display-Medium.otf');
+}
+@font-face {
+    font-family: "SF-Pro-Display-Regular";
+    src: url('../../static/fonts/SF-Pro-Display-Regular.otf');
+}
+@font-face {
+    font-family: "SF-Pro-Text-Bold";
+    src: url('../../static/fonts/SF-Pro-Text-Bold.otf');
+}
+
+@font-face {
+    font-family: "SF-Pro-Text-Medium";
+    src: url('../../static/fonts/SF-Pro-Text-Medium.otf');
+}
+@font-face {
+    font-family: "SF-Pro-Text-Regular";
+    src: url('../../static/fonts/SF-Pro-Text-Regular.otf');
+}
+
+
+// @import "tipstyle";
+
 $z-indexes: ();
 
 /*=====  End of SETTINGS  ======*/
@@ -24,15 +54,10 @@ $z-indexes: ();
 ===============================*/
 
 body {
-    color: $dark;
+  
     font-family: 'Lato', sans-serif;
     font-weight: 300;
 }
-
-h1, h2, h3 {
-    font-weight: 300;
-}
-
 
 
 .hidden-md {
@@ -57,11 +82,7 @@ h1, h2, h3 {
     }
 }
 
-
-
-.section {
-    margin: 30px 0;
-
+.section {   
     &--header {
         margin-top: 0;
         text-align: center;
@@ -69,37 +90,6 @@ h1, h2, h3 {
         @include md {
             text-align: left;
         }
-
-        .section__title {
-            font-size: 28px;
-
-            @include sm {
-                font-size: 36px;
-            }
-        }
-    }
-
-    &__title {
-        font-size: 26px;
-
-        @include sm {
-            font-size: 30x;
-        }
-
-        .section--header & {
-            border-bottom: $border;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-        }
-    }
-
-    &__description {
-        color: rgba($dark, .6);
-    }
-
-    &__subtitle {
-        color: $gray;
-        margin-top: 0;
     }
 }
 
@@ -115,16 +105,6 @@ h1, h2, h3 {
     @include md {
         height: 100%;
     }
-
-    h3 {
-        font-size: 32px;
-        font-weight: 300;
-        left: 50%;
-        margin: 0;
-        position: absolute;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
 }
 
 pre[class*=language-] {
@@ -137,48 +117,6 @@ pre[class*=language-] {
     }
 }
 
-.code {
-    &__title {
-        text-transform: uppercase;
-    }
 
-    &__content {
-        font-size: 13px;
-    }
-}
-
-.site-footer {
-    font-size: 12px;
-    margin: 30px 0;
-    text-align: center;
-}
-
-.copyright {
-    border-top: $border;
-    margin-bottom: 5px;
-    padding-top: 30px;
-
-    @include sm {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-    }
-
-    span {
-        display: block;
-    }
-
-    > iframe {
-        margin-top: 5px;
-
-        @include sm {
-            margin: 0 0 0 7px;
-        }
-    }
-
-    strong {
-        margin-left: 2px;
-    }
-}
 
 /*=====  End of GENERAL  ======*/
