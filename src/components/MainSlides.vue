@@ -33,6 +33,7 @@
     import TipSlide from './TipSlide'
     import {connect} from 'redux-vue'
     import axios from 'axios'
+    import {hasClass, addClass, removeClass} from '../libraries/lib'
     // var json_data = require('../assets/photoStream.json');
 
     function imageSlideRenderList(h,slideImages) {
@@ -128,7 +129,11 @@
             sidebarStatus: '',
             sidebarMode: '',
             slidesIn: 0,
-            stays:0
+            stays:0,
+            slideOutTimer:null,
+            slideInTimer:null,
+            slideStatus: 'in',
+            flag:false
         },
         logoInfo: {
             logoStatus : '',
@@ -151,7 +156,7 @@
                                     </div>  
                                 </div>                    
                             </div>
-                            <div id="tiparea" class="slideOut">                       
+                            <div id="tiparea" class="slideIn">                       
                                 <div id="slider">                                  
                                     <div id="slides">
                                         <div id="overflow">
@@ -163,7 +168,7 @@
                                 </div>      
                             </div>
 
-                            <div id= "bottomarea">
+                            <div id= "bottomarea" class="initbottomOut">
                                 <div class="bottomImageDiv">
                                     <img class="btmImage" src={this.slideTips.imgUrl} />
                                 </div>
@@ -175,7 +180,7 @@
                         </div>             
                     </div>
 
-                    <div class="logo topright" >
+                    <div class="logo leftbottom" >
                         <img class="logoImage" src={this.logoInfo.logoUrl} />
                     </div>
                 </section>
@@ -214,10 +219,17 @@
     },
 
     updated () {
-        if(!this.slideImages.start) {
-            console.log("startanimation")
-            this.startAnimation();
+        if(!this.slideImages.start) {           
+            this.startAnimation();           
         } 
+        
+        if(this.slideTips.slideStatus == 'in' && !this.slideTips.flag) {
+            this.slideTips.flag =true;
+            this.slideTips.slideOutTimer = setTimeout(this.SlideOutAnimation, this.slideTips.slidesIn  * 1000)                
+        }else if(this.slideTips.slideStatus == 'out' && this.slideTips.flag){
+            this.slideTips.flag =false;
+            this.slideTips.slideInTimer = setTimeout(this. SlideInAnimation, this.slideTips.stays  * 1000)
+        }  
     },
    
     beforeDestroy (){
@@ -253,7 +265,6 @@
             }else{
               this.slideImages.currentNumber += 1
             }
-
               
             this.slideImages.loadDom.push(this.slideImages.images[Math.abs(this.slideImages.currentNumber) % this.slideImages.images.length]);
             if(this.slideImages.currentNumber>3){
@@ -269,7 +280,47 @@
             let tipWidth = document.getElementById('tiparea').clientWidth
             let SliderHeight = document.getElementById('slider').clientHeight
             let windowHeight = window.innerHeight     
+        },
+
+        //-------------------SlideIn and SlideOut of Sidebar--------------------//
+       
+        SlideOutAnimation: function() {
+            console.log("slideOutTimer",this.slideTips.slidesIn  * 1000)
+            var SidebarObj = document.getElementById('tiparea')
+            var BottombarObj = document.getElementById('bottomarea')
+            var logoObj = document.getElementsByClassName('logo')[0]
+            
+            removeClass(SidebarObj, 'slideIn')
+            addClass(SidebarObj, 'slideOut')            
+            removeClass(logoObj,'leftbottom')
+            setTimeout(()=>{
+                removeClass(BottombarObj, 'bottomOut')            
+                addClass(BottombarObj, 'bottomIn')                
+                addClass(logoObj,'topright')   
+                removeClass(BottombarObj, 'initbottomOut')  
+            },3000)     
+
+            this.slideTips.slideStatus = "out";
+        },
+
+        SlideInAnimation: function() {
+            console.log("slideInTimer",this.slideTips.stays  * 1000)
+            var SidebarObj = document.getElementById('tiparea')
+            var BottombarObj = document.getElementById('bottomarea')
+            var logoObj = document.getElementsByClassName('logo')[0]
+            
+            removeClass(logoObj,'topright')
+            addClass(BottombarObj, 'bottomOut')
+            removeClass(BottombarObj, 'bottomIn')
+            setTimeout(()=>{
+                removeClass(SidebarObj, 'slideOut')
+                addClass(SidebarObj, 'slideIn')
+                addClass(logoObj,'leftbottom')
+            },3000)
+            this.slideTips.slideStatus = "in";
         }
+
+        //-------------------SlideIn and SlideOut of Sidebar--------------------//
     }   
   }
 </script>
@@ -289,25 +340,44 @@
             // height:80px;
         }
     }
+    //logo position by SlideIn and SlideOut
     .logo.leftbottom {
         bottom : 50px;
-        left: 50px;
-    }
-    .logo.topright{
-        top : 50px;
-        right: 50px;
+        left: 50px;        
     }
 
-    #tiparea {
-       
+    .logo.topright{
+        top : 50px;
+        right: 50px;        
+    }
+
+    #tiparea {       
         width: 300px;
         position: absolute;
         right: 0;
         z-index: 10000;
     }
+    //sidebar slideOut and slideIn
     #tiparea.slideOut{
         margin-right:-300px;
+        animation-name: tipout;
+        animation-duration: 2s
     }
+    @keyframes tipout{
+        from {margin-right: 0px}
+        to {margin-right:-300px}
+    }
+    #tiparea.slideIn{
+         margin-right:0px;
+        animation-name: tipIn;
+        animation-duration: 2s
+    }
+    @keyframes tipIn{
+        from {margin-right: -300px}
+        to {margin-right:-0px}
+    }
+
+
 
     #photoarea {
         width:100%;
@@ -317,6 +387,30 @@
         width:100%;
         position:absolute;
         bottom:0;
+    }
+    
+    //bottom bar SlideOut and SlideIn
+     
+    #bottomarea.bottomIn {
+        margin-bottom:0px;
+        animation-name: bottomslideIn;
+        animation-duration: 2s
+    }
+    @keyframes bottomslideIn{
+        from { margin-bottom:-100px}
+        to { margin-bottom:0px}
+    }
+    #bottomarea.initbottomOut {
+         margin-bottom:-100px;
+    }
+    #bottomarea.bottomOut {
+        margin-bottom:-100px;
+        animation-name: bottomslideOut;
+        animation-duration: 2s
+    }
+    @keyframes bottomslideOut{
+        from { margin-bottom:0px}
+        to { margin-bottom:-100px}
     }
 
     #bottomarea .bottomImageDiv {   
