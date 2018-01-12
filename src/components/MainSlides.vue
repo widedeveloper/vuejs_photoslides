@@ -40,8 +40,8 @@
             slideImages.loadDom.map((image, index)=>                     
                 <PhotoSlide 
                 slide = {image}
-                animate={index==2?slideImages.animates[Math.floor(Math.random() * slideImages.animates.length) % slideImages.animates.length]:'animated'}
-                zIndex ={index==2?slideImages.currentNumber:1}
+                animate={index>=2?slideImages.animates[Math.floor(Math.random() * slideImages.animates.length) % slideImages.animates.length]:slideImages.animates[index]}
+                zIndex ={index>=2?slideImages.currentNumber:1}
                 />            
             ) 
         )   
