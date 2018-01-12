@@ -185,21 +185,18 @@
 
     beforeCreate(){
         addStoreJson();
-        addTipstorJson();  
-
-        
+        addTipstorJson();          
     },
 
     created() {
          store.subscribe(()=>{
             let preReduxStore = store.getState()
             let photoData = preReduxStore.jsonStore.photoData
-            if(Object.keys(photoData).length>0) {
-                this.slideImages.preimages = photoData
-            }
             let tipData = preReduxStore.jsonStore.tipData
-            
-            if(Object.keys(tipData).length>0) {
+            if(Object.keys(photoData).length>0 && Object.keys(tipData).length>0) {
+                console.log(preReduxStore)
+                this.slideImages.preimages = photoData
+           
                 //sidebar setting
                 this.slideTips.tipcontents = tipData.tipcontents
                 this.slideTips.sidebarTitle=tipData.sidebarTitle
@@ -211,25 +208,18 @@
                 this.slideTips.stays= tipData.sidebarSetting.stays
                 //logo Setting
                 this.logoInfo.logoStatus= tipData.logoSetting.logoStatus
-                this.logoInfo.logoUrl= tipData.logoSetting.logoUrl
-
-            }          
-            
-
-            if(!this.slideImages.start) {
-                this.startAnimation();
-            }        
-        })  
-      
+                this.logoInfo.logoUrl= tipData.logoSetting.logoUrl                 
+            }                                     
+        })        
     },
 
-    mounted () {
-       
+    updated () {
+        if(!this.slideImages.start) {
+            console.log("startanimation")
+            this.startAnimation();
+        } 
     },
-    beforeMount (){
-       
-    },
-
+   
     beforeDestroy (){
      
     },
