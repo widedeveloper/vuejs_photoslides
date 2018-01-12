@@ -1,7 +1,7 @@
 
 <template>
     <div style="position:absolute" >                   
-        <img :src="slide" :class="animate"  @load ="onload($event)"/>                    
+        <img :src="slide" :class="animate"  @load ="onload($event,zIndex)" />                    
     </div>
 </template>
 <script>
@@ -14,30 +14,32 @@
 
         },
         methods:{
-            onload(event) {                           
-                var newImage = event.currentTarget
-                var windowHeight = window.innerHeight
-                var windowWidth = window.innerWidth
+            onload(event, zIndex) {  
+                // if(zIndex!=1)   {                      
+                    var newImage = event.currentTarget
+                    var windowHeight = window.innerHeight
+                    var windowWidth = window.innerWidth
+                    var imageWidth = newImage.naturalWidth
+                    var imageHeight = newImage.naturalHeight
+                    // console.log("OrignWID============",newImage.src ,imageWidth, imageHeight)
 
-                var imageWidth = newImage.naturalWidth
-                var imageHeight = newImage.naturalHeight
+                    var result = this.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
+                    newImage.style.width = result.width + 'px'
+                    newImage.style.height = result.height + 'px'
+                    newImage.style.top = result.targettop + 'px'
+                    newImage.style.left = result.targetleft + 'px'
 
-                var result = this.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
-                newImage.style.width = result.width + 'px'
-                newImage.style.height = result.height + 'px'
-                newImage.style.top = result.targettop + 'px'
-                newImage.style.left = result.targetleft + 'px'
-
-                var parentDiv = newImage.parentNode;
-                if(result.portrait){                        
-                    parentDiv.style.width = windowWidth + 'px'
-                    parentDiv.style.height = windowHeight + 'px'
-                    parentDiv.style.background = 'black'
-                }else{                   
-                    parentDiv.style.width = '0px'
-                    parentDiv.style.height =  '0px'
-                    parentDiv.style.background = 'none'
-                }
+                    var parentDiv = newImage.parentNode;
+                    if(result.portrait){                        
+                        parentDiv.style.width = windowWidth + 'px'
+                        parentDiv.style.height = windowHeight + 'px'
+                        parentDiv.style.background = 'black'
+                    }else{                   
+                        parentDiv.style.width = '0px'
+                        parentDiv.style.height =  '0px'
+                        parentDiv.style.background = 'none'
+                    }
+                // }
             },
 
             scaleImage (srcwidth, srcheight, targetwidth, targetheight ) {
@@ -56,24 +58,20 @@
                     }    
                 }
                 
-                result.targetleft = Math.floor((targetwidth - result.width) / 2);
-                result.targettop = Math.floor((targetheight - result.height) / 2);                
+                result.targetleft = ((targetwidth - result.width) / 2);
+                result.targettop = ((targetheight - result.height) / 2);                
                 return result;
             }
-        }
-       
-    }
-    
+        }       
+    }    
 </script>
 
 <style>
-    #photoarea .slide {
-       
+    #photoarea .slide {       
         overflow: hidden;
         position: relative;
     } 
     #photoarea .slide img {        
-        position:absolute;
-        
+        position:absolute;        
     }
 </style>

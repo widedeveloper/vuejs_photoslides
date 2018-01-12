@@ -40,8 +40,8 @@
             slideImages.loadDom.map((image, index)=>                     
                 <PhotoSlide 
                 slide = {image}
-                animate={slideImages.animates[Math.abs((index>2)?slideImages.currentNumber:index) % slideImages.animates.length]}
-                zIndex ={(index>2)?slideImages.currentNumber:index}
+                animate={index==2?slideImages.animates[Math.floor(Math.random() * slideImages.animates.length) % slideImages.animates.length]:'animated'}
+                zIndex ={index==2?slideImages.currentNumber:1}
                 />            
             ) 
         )   
@@ -144,17 +144,14 @@
                 <section class="section" >
                     <div class="container" >
                         <div class="row">
-                            <div id="photoarea" style="width:100%;">
+                            <div id="photoarea" >
                                 <div class="slide"  >
                                     <div>
                                         {imageSlideRenderList(h,this.slideImages)}                                                                                     
                                     </div>  
                                 </div>                    
                             </div>
-                            <div id="tiparea" style="width: 300px;
-                                position: absolute;
-                                right: 0;
-                                z-index: 10000;">                       
+                            <div id="tiparea" class="slideOut">                       
                                 <div id="slider">                                  
                                     <div id="slides">
                                         <div id="overflow">
@@ -165,10 +162,20 @@
                                     </div>
                                 </div>      
                             </div>
+
+                            <div id= "bottomarea">
+                                <div class="bottomImageDiv">
+                                    <img class="btmImage" src={this.slideTips.imgUrl} />
+                                </div>
+                                <div class="bottomtitle">
+                                    <div class="title">{this.slideTips.sidebarTitle}</div>
+                                    <div class = "subtitle">{this.slideTips.sidebarSubTitle}</div>
+                                </div>
+                            </div>
                         </div>             
                     </div>
 
-                    <div class="logo" >
+                    <div class="logo topright" >
                         <img class="logoImage" src={this.logoInfo.logoUrl} />
                     </div>
                 </section>
@@ -180,7 +187,11 @@
         addStoreJson();
         addTipstorJson();  
 
-        store.subscribe(()=>{
+        
+    },
+
+    created() {
+         store.subscribe(()=>{
             let preReduxStore = store.getState()
             let photoData = preReduxStore.jsonStore.photoData
             if(Object.keys(photoData).length>0) {
@@ -209,17 +220,13 @@
                 this.startAnimation();
             }        
         })  
-    },
-
-    created() {
-         
       
     },
 
     mounted () {
        
     },
-    updated (){
+    beforeMount (){
        
     },
 
@@ -249,10 +256,6 @@
 
         nextAnimation: function() {
             
-            //if ImageDomCount > 3, remove before dom object
-            if(this.slideImages.loadDom.length>3){
-              this.slideImages.loadDom.splice(0,1)
-            }            
             //after finish current image loading, get new latest json photos
             if(this.slideImages.currentNumber % this.slideImages.images.length == 0){
                 this.slideImages.currentNumber += 1                            
@@ -260,8 +263,12 @@
             }else{
               this.slideImages.currentNumber += 1
             }
+
+              
             this.slideImages.loadDom.push(this.slideImages.images[Math.abs(this.slideImages.currentNumber) % this.slideImages.images.length]);
-           
+            if(this.slideImages.currentNumber>3){
+                this.slideImages.loadDom.splice(0,1)
+            } 
         },
         //-------------------photo animation and transition--------------------//
 
@@ -281,17 +288,102 @@
 <style lang="scss" scoped>
     @import '../scss/main.scss';
     .logo {
-        position:fixed;
-        bottom : 50px;
-        left: 50px;
+        position:fixed;        
         background: white;
         padding: 5px;
         opacity:0.7;
         border-radius: 10px;
         box-shadow: 1px 1px 1px 1px #decbcb;
         .logoImage {
-            width:80px;
-            height:80px;
+            // width:80px;
+            // height:80px;
         }
+    }
+    .logo.leftbottom {
+        bottom : 50px;
+        left: 50px;
+    }
+    .logo.topright{
+        top : 50px;
+        right: 50px;
+    }
+
+    #tiparea {
+       
+        width: 300px;
+        position: absolute;
+        right: 0;
+        z-index: 10000;
+    }
+    #tiparea.slideOut{
+        margin-right:-300px;
+    }
+
+    #photoarea {
+        width:100%;
+    }
+
+    #bottomarea {
+        width:100%;
+        position:absolute;
+        bottom:0;
+    }
+
+    #bottomarea .bottomImageDiv {   
+        position:relative;     
+        height: 100px;
+        float:  left;
+        width: 15%;
+    }
+    
+    #bottomarea .bottomImageDiv img{
+        height: 100%;
+    }
+
+    .bottomtitle{        
+        width: 85%;
+        float:  left;
+        position:  relative;
+        height: 100px;
+        z-index: 100000;
+        background: #3a5375;
+        
+    }
+    .bottomtitle::after {
+        top: 0px;
+        -webkit-transform: skewY(1.5deg);
+        transform: skewX(-25.5deg);
+        -webkit-transform-origin: 100% 0;
+        transform-origin: 0% 100%;
+        background: inherit;
+        content: '';
+        display: block;
+        height: 100%;
+        /* background: red; */
+        left: -47px;
+        position: absolute;
+        right: 100px;
+        z-index: 100001;
+        -webkit-backface-visibility: hidden;
+    }
+    .bottomtitle .title{
+        float: left;
+        height: 100%;
+        color: white;
+        line-height: 100px;
+        font-size: 35px;
+        font-family: "SF-Pro-Text-bold";
+        margin-left: 25px;
+        z-index: 1000003;
+    }
+    .bottomtitle .subtitle {
+        float: right;
+        height: 100%;
+        color: #ccc;
+        line-height: 100px;
+        font-size: 35px;
+        font-family: "SF-Pro-Text-regular";
+        margin-right: 15px;
+        z-index: 1000003;
     }
 </style>

@@ -83,6 +83,7 @@ body {
 }
 
 .section {   
+    overflow: hidden;
     &--header {
         margin-top: 0;
         text-align: center;
