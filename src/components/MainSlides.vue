@@ -38,13 +38,16 @@
 
     function imageSlideRenderList(h,slideImages) {
         return (
-            slideImages.loadDom.map((image, index)=>                     
+            slideImages.loadDom.map((image, index)=>{ 
+             
+                return (              
                 <PhotoSlide 
                 slide = {image}
-                animate={index>=2?slideImages.animates[Math.floor(Math.random() * slideImages.animates.length) % slideImages.animates.length]:slideImages.animates[index]}
-                zIndex ={index>=2?slideImages.currentNumber:1}
-                />            
-            ) 
+                animate={slideImages.animates[Math.abs((index>=2)?slideImages.currentNumber:index) % slideImages.animates.length]}
+                zIndex ={(index>=2)?slideImages.loadDom.length:index}
+                />           
+                ) 
+            }) 
         )   
     }
 
@@ -64,7 +67,7 @@
                     <div class= "tipConarea">
                         <div class="Tiptitle">Tips</div>
                         <div class="tipcontent">                         
-                            <TipSlide items = {slideTips.tipcontents} /> 
+                            <TipSlide items = {slideTips.tipcontents} status={slideTips.slideStatus}/> 
                         </div>
                     </div>
                 </div>
@@ -72,26 +75,36 @@
         ) 
     }
 
-    function addStoreJson() {
-
+    function addStoreJson(obj) {
+        if(Object.keys(obj.$route.params).length>0){            
+            var param = obj.$route.params.id
+        }else{
+            var param = 'default'
+        }        
         //get new latest photojson and save preImageStore
-        axios.get('http://159.89.180.81/app/ajax.php?method=photojson')
+        axios.get('http://159.89.180.81/app/ajax.php?method=photojson&param='+param)
             .then(response => {
-                store.dispatch(addPhotoJsonAction(response.data))
+                if(response.data != "noStream"){
+                    store.dispatch(addPhotoJsonAction(response.data))
+                }else{
+                    obj.redirectRouter();
+                }               
             })
             .catch(e =>{
-                console.log("Error",e)
+                console.log("PhotoStreamError",e)
             })
             setTimeout(addStoreJson, 10000)
     }
 
-    function addTipstorJson() {
+    function addTipstorJson(obj) {
         axios.get('http://159.89.180.81/app/ajax.php?method=tipjson')
             .then(response => { 
-                store.dispatch(addTipJsonAction(response.data))
+                if(response.data != "noConfig"){
+                    store.dispatch(addTipJsonAction(response.data))
+                }
             })
             .catch(e =>{
-                console.log("Error",e)
+                console.log("TipContenterror",e)
             })
     }
   
@@ -106,18 +119,28 @@
             start:false,
             currentNumber: 0,
             timer: null,            
-            animates: [             
-             'animated tada',
-             'animated rollIn ',
-             'animated rotateInUpLeft',
-             'animated slideInLeft',
-             'animated pulse',
-             'animated zoomInDown',
-             'animated zoomInLeft',
-             'animated zoomInUp',
-             'animated slideInUp',
-             'animated rotateInDownLeft',
-             'animated pulse',
+            animates: [        
+
+                'animated zoomInUp',
+                'animated jello',
+                'animated bounceInRight',
+                'animated rotateInUpLeft',
+                'animated filp',
+                'animated rubberBand',
+                'animated tada',
+                'animated rollIn ',
+                'animated slideInLeft',
+                'animated flipInY',
+                'animated pulse',
+                'animated jackInTheBox',
+                'animated zoomInLeft',
+                'animated flipInX',
+                'animated slideInUp',
+                'animated lightSpeedIn',
+                'animated rotateInDownLeft',
+                'animated zoomInDown',
+                'animated pulse'
+             
             ],
             loadDom: []
         },
@@ -133,11 +156,16 @@
             slideOutTimer:null,
             slideInTimer:null,
             slideStatus: 'in',
-            flag:false
+            flag:false,
+            
         },
         logoInfo: {
             logoStatus : '',
             logoUrl : ''
+        },
+        bottomInfo: {
+            bottombarStatus: '',
+            bottomImageUrl: ''
         }
       }
     },
@@ -156,7 +184,7 @@
                                     </div>  
                                 </div>                    
                             </div>
-                            <div id="tiparea" class="slideIn">                       
+                            <div id="tiparea" class="slideInit">                       
                                 <div id="slider">                                  
                                     <div id="slides">
                                         <div id="overflow">
@@ -170,7 +198,7 @@
 
                             <div id= "bottomarea" class="initbottomOut">
                                 <div class="bottomImageDiv">
-                                    <img class="btmImage" src={this.slideTips.imgUrl} />
+                                    <img class="btmImage" src={this.bottomInfo.bottomImageUrl} />
                                 </div>
                                 <div class="bottomtitle">
                                     <div class="title">{this.slideTips.sidebarTitle}</div>
@@ -180,7 +208,7 @@
                         </div>             
                     </div>
 
-                    <div class="logo leftbottom" >
+                    <div class="logo leftbottom logofadeIn" >
                         <img class="logoImage" src={this.logoInfo.logoUrl} />
                     </div>
                 </section>
@@ -189,8 +217,8 @@
     },
 
     beforeCreate(){
-        addStoreJson();
-        addTipstorJson();          
+        addStoreJson(this);
+        addTipstorJson(this);          
     },
 
     created() {
@@ -199,7 +227,6 @@
             let photoData = preReduxStore.jsonStore.photoData
             let tipData = preReduxStore.jsonStore.tipData
             if(Object.keys(photoData).length>0 && Object.keys(tipData).length>0) {
-                console.log(preReduxStore)
                 this.slideImages.preimages = photoData
            
                 //sidebar setting
@@ -213,23 +240,36 @@
                 this.slideTips.stays= tipData.sidebarSetting.stays
                 //logo Setting
                 this.logoInfo.logoStatus= tipData.logoSetting.logoStatus
-                this.logoInfo.logoUrl= tipData.logoSetting.logoUrl                 
+                this.logoInfo.logoUrl= tipData.logoSetting.logoUrl  
+                //bottombar Setting
+                this.bottomInfo.bottombarStatus = tipData.bottombarSetting.bottombarStatus             
+                this.bottomInfo.bottomImageUrl = tipData.bottombarSetting.bottomUrl             
             }                                     
         })        
     },
 
     updated () {
-        if(!this.slideImages.start) {           
+        
+        if(!this.slideImages.start ) {           
             this.startAnimation();           
         } 
-        
-        if(this.slideTips.slideStatus == 'in' && !this.slideTips.flag) {
-            this.slideTips.flag =true;
-            this.slideTips.slideOutTimer = setTimeout(this.SlideOutAnimation, this.slideTips.slidesIn  * 1000)                
-        }else if(this.slideTips.slideStatus == 'out' && this.slideTips.flag){
-            this.slideTips.flag =false;
-            this.slideTips.slideInTimer = setTimeout(this. SlideInAnimation, this.slideTips.stays  * 1000)
+        if (this.slideTips.sidebarStatus=='on'){
+             this.initSidebar()
+        }
+        if (this.slideTips.sidebarStatus=='on' && this.slideTips.sidebarMode=='dynamic' ){            
+            if(this.slideTips.slideStatus == 'in' && !this.slideTips.flag) {
+                this.slideTips.flag =true;
+                
+                this.slideTips.slideOutTimer = setTimeout(this.SlideOutAnimation, this.slideTips.slidesIn  * 1000)                
+            }else if(this.slideTips.slideStatus == 'out' && this.slideTips.flag){
+                 
+                this.slideTips.flag =false;
+                this.slideTips.slideInTimer = setTimeout(this. SlideInAnimation, this.slideTips.stays  * 1000)
+            }  
+        } else if (this.slideTips.sidebarStatus=='off') {
+            this.hiddenSidebar()
         }  
+        
     },
    
     beforeDestroy (){
@@ -237,13 +277,16 @@
     },
 
     methods: {     
+        // redirect error page
+        redirectRouter: function(obj) {
+            location.href = '/nodata'            
+        },
 
         //------------photo slide animation and transition----------------//
         startAnimation: function() {
             this.replacePhotos()
-            console.log("start",this.slideImages.images)
             this.slideImages.start = true;
-            this.slideImages.timer = this.addTimer()
+            this.slideImages.timer = this.addTimer()            
         },
 
         addTimer: function() {
@@ -253,11 +296,9 @@
 
         replacePhotos: function (){
             this.slideImages.images = this.slideImages.preimages
-            console.log("newJson",this.slideImages.images)
         },
 
-        nextAnimation: function() {
-            
+        nextAnimation: function() {            
             //after finish current image loading, get new latest json photos
             if(this.slideImages.currentNumber % this.slideImages.images.length == 0){
                 this.slideImages.currentNumber += 1                            
@@ -279,24 +320,40 @@
             let photoWidth = document.getElementById('photoarea').clientWidth
             let tipWidth = document.getElementById('tiparea').clientWidth
             let SliderHeight = document.getElementById('slider').clientHeight
-            let windowHeight = window.innerHeight     
+            let windowHeight = window.innerHeight  
         },
 
         //-------------------SlideIn and SlideOut of Sidebar--------------------//
-       
+        initSidebar : function() {
+            var SidebarObj = document.getElementById('tiparea')
+            removeClass(SidebarObj, 'slideInit')
+        },
+        hiddenSidebar:function()  {
+            var SidebarObj = document.getElementById('tiparea')
+            addClass(SidebarObj, 'slideInit')
+        },
         SlideOutAnimation: function() {
-            console.log("slideOutTimer",this.slideTips.slidesIn  * 1000)
+    
             var SidebarObj = document.getElementById('tiparea')
             var BottombarObj = document.getElementById('bottomarea')
             var logoObj = document.getElementsByClassName('logo')[0]
             
             removeClass(SidebarObj, 'slideIn')
-            addClass(SidebarObj, 'slideOut')            
-            removeClass(logoObj,'leftbottom')
+            addClass(SidebarObj, 'slideOut') 
+            removeClass(logoObj,'logofadeIn')
+            addClass(logoObj,'logofadeOut')           
+            
             setTimeout(()=>{
-                removeClass(BottombarObj, 'bottomOut')            
-                addClass(BottombarObj, 'bottomIn')                
-                addClass(logoObj,'topright')   
+                if(this.bottomInfo.bottombarStatus == 'on'){
+                    removeClass(BottombarObj, 'bottomOut')            
+                    addClass(BottombarObj, 'bottomIn')  
+                }     
+                              
+                removeClass(logoObj,'leftbottom')                          
+                addClass(logoObj,'topright')
+                removeClass(logoObj,'logofadeOut')  
+                addClass(logoObj,'logofadeIn')          
+               
                 removeClass(BottombarObj, 'initbottomOut')  
             },3000)     
 
@@ -304,18 +361,25 @@
         },
 
         SlideInAnimation: function() {
-            console.log("slideInTimer",this.slideTips.stays  * 1000)
+           
             var SidebarObj = document.getElementById('tiparea')
             var BottombarObj = document.getElementById('bottomarea')
             var logoObj = document.getElementsByClassName('logo')[0]
+            removeClass(logoObj,'logofadeIn') 
+            addClass(logoObj,'logofadeOut')       
             
-            removeClass(logoObj,'topright')
-            addClass(BottombarObj, 'bottomOut')
-            removeClass(BottombarObj, 'bottomIn')
+            if(this.bottomInfo.bottombarStatus == 'on'){
+                addClass(BottombarObj, 'bottomOut')
+                removeClass(BottombarObj, 'bottomIn')
+            }           
             setTimeout(()=>{
                 removeClass(SidebarObj, 'slideOut')
                 addClass(SidebarObj, 'slideIn')
+                removeClass(logoObj,'topright')
                 addClass(logoObj,'leftbottom')
+                removeClass(logoObj,'logofadeOut')
+                addClass(logoObj,'logofadeIn') 
+             
             },3000)
             this.slideTips.slideStatus = "in";
         }
@@ -332,9 +396,11 @@
         position:fixed;        
         background: white;
         padding: 5px;
-        opacity:0.7;
+        // opacity:0.7;
+        opacity:0;
         border-radius: 10px;
         box-shadow: 1px 1px 1px 1px #decbcb;
+        z-index:100000;
         .logoImage {
             // width:80px;
             // height:80px;
@@ -351,6 +417,25 @@
         right: 50px;        
     }
 
+    .logofadeIn {
+        opacity: 0.7;
+        animation-name: logoshow;
+        animation-duration: 1s;
+        @keyframes logoshow{
+            0% {opacity: 0}
+            100% {opacity:0.7}
+        }
+    }
+    .logofadeOut{
+        opacity: 0;
+        animation-name: logohide;
+        animation-duration: 1s;
+        @keyframes logohide{
+            0% {opacity: 0.7}
+            to {opacity:0}
+        }
+    }
+
     #tiparea {       
         width: 300px;
         position: absolute;
@@ -358,10 +443,13 @@
         z-index: 10000;
     }
     //sidebar slideOut and slideIn
+    #tiparea.slideInit{
+        visibility:hidden
+    }
     #tiparea.slideOut{
         margin-right:-300px;
         animation-name: tipout;
-        animation-duration: 2s
+        animation-duration: 3s
     }
     @keyframes tipout{
         from {margin-right: 0px}
@@ -370,7 +458,7 @@
     #tiparea.slideIn{
          margin-right:0px;
         animation-name: tipIn;
-        animation-duration: 2s
+        animation-duration: 3s
     }
     @keyframes tipIn{
         from {margin-right: -300px}
@@ -386,47 +474,49 @@
     #bottomarea {
         width:100%;
         position:absolute;
-        bottom:0;
+        bottom:-100px;
     }
     
     //bottom bar SlideOut and SlideIn
      
     #bottomarea.bottomIn {
-        margin-bottom:0px;
+        bottom:0px;
         animation-name: bottomslideIn;
         animation-duration: 2s
     }
     @keyframes bottomslideIn{
-        from { margin-bottom:-100px}
-        to { margin-bottom:0px}
+        from { bottom:-100px}
+        to { bottom:0px}
     }
     #bottomarea.initbottomOut {
-         margin-bottom:-100px;
+         bottom:-100px;
     }
     #bottomarea.bottomOut {
-        margin-bottom:-100px;
+        bottom:-100px;
         animation-name: bottomslideOut;
         animation-duration: 2s
     }
     @keyframes bottomslideOut{
-        from { margin-bottom:0px}
-        to { margin-bottom:-100px}
+        from { bottom:0px}
+        to { bottom:-100px}
     }
 
-    #bottomarea .bottomImageDiv {   
+    #bottomarea .bottomImageDiv { 
+        width:180px;  
         position:relative;     
         height: 100px;
         float:  left;
-        width: 15%;
     }
     
     #bottomarea .bottomImageDiv img{
+        width:100%;  
         height: 100%;
+        z-index: 100000;
     }
 
     .bottomtitle{        
-        width: 85%;
-        float:  left;
+        
+        float:  right;
         position:  relative;
         height: 100px;
         z-index: 100000;

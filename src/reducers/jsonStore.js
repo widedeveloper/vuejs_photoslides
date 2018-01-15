@@ -20,7 +20,8 @@ export default function jsonStore (state = {
                         sidebarSubTitle:actionValue.subtitle,
                         imgUrl:actionValue.imgUrl,
                         sidebarSetting: actionValue.sidebarSetting,
-                        logoSetting : actionValue.logoSetting
+                        logoSetting : actionValue.logoSetting,
+                        bottombarSetting: actionValue.bottombarSetting
                     } 
                 }
             break;

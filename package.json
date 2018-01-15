@@ -6,20 +6,23 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
-    "start": "npm run dev",
+    "start": "node server.js",
     "build": "node build/build.js"
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "connect-history-api-fallback": "^1.5.0",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-vue": "^0.7.1",
     "vue": "^2.5.2",
+    "vue-router": "^3.0.1",
     "vue-swipe": "^2.3.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
     "babel-core": "^6.22.1",
+    "babel-eslint": "^8.2.1",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
     "babel-loader": "^7.1.1",
     "babel-plugin-syntax-jsx": "^6.18.0",

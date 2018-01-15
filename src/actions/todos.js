@@ -20,7 +20,8 @@ export function getTipJson (tip_json) {console.log("LSADFASDFASDF",tip_json)
             subtitle:tip_json.subtitle,
             imgUrl:tip_json.imageUrl,
             sidebarSetting: tip_json.sidebarSetting,
-            logoSetting : tip_json.logoSetting
+            logoSetting : tip_json.logoSetting,
+            bottombarSetting: tip_json.bottombarSetting
 
         }
     }

@@ -1,7 +1,7 @@
 
 <template>
     <div style="position:absolute" >                   
-        <img :src="slide" :class="animate"  @load ="onload($event,zIndex)" />                    
+        <img :src="slide" :class="animate"  @load ="onload($event,zIndex)" :style = "{'z-index':zIndex}"/>                    
     </div>
 </template>
 <script>
@@ -21,7 +21,6 @@
                     var windowWidth = window.innerWidth
                     var imageWidth = newImage.naturalWidth
                     var imageHeight = newImage.naturalHeight
-                    // console.log("OrignWID============",newImage.src ,imageWidth, imageHeight)
 
                     var result = this.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
                     newImage.style.width = result.width + 'px'

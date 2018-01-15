@@ -1,19 +1,13 @@
 <template>
   <div id="app">
-    <MainSlides />
+    <router-view/>
   </div>
 </template>
 
 <script>
-import MainSlides from './components/MainSlides'
-
-
 
 export default {
-  name: 'app', 
-   components: {
-    MainSlides
-  }
+  name: 'app'
 }
 </script>
 
