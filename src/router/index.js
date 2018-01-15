@@ -11,29 +11,21 @@ export default new Router ({
     mode: 'history',
     routes: [
         {
-            path: '/photoSlide',
+            path: '/',
             name: 'Main',
             component: MainSlides
         },
         {
-            path: '/photoSlide/:id',
+            path: '/:id',
             name: 'MainSlides',
             component: MainSlides
-        },
-        {
-            path: '/nodata',
-            name: 'nodata',
-            component: NostreamData
         }
-        ,
-        {
-            path: '/:id',
-           redirect: '/photoSlide/:id'
-        },
-        {
-            path: '/',
-           redirect: '/photoSlide'
-        }
+        // ,
+        // {
+        //     path: '/nodata',
+        //     name: 'nodata',
+        //     component: NostreamData
+        // }     
         
     ]
 })

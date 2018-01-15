@@ -28,13 +28,15 @@
     <script>
     import store from '../store'
     import {getPhotoJson as addPhotoJsonAction } from '../actions/todos'
-    import {getTipJson as addTipJsonAction } from '../actions/todos'
+    // import {getTipJson as addTipJsonAction } from '../actions/todos'
     import PhotoSlide from './ImageSlide'
     import TipSlide from './TipSlide'
     import {connect} from 'redux-vue'
     import axios from 'axios'
     import {hasClass, addClass, removeClass} from '../libraries/lib'
     // var json_data = require('../assets/photoStream.json');
+
+    var routerObj = null;
 
     function imageSlideRenderList(h,slideImages) {
         return (
@@ -55,18 +57,18 @@
        
         return (           
             <article class="tipslide"> 
-                <div class="image-container">
-                    <div class="slideToparea">
-                        <img src={slideTips.imgUrl} alt={slideTips.sidebarTitle} />
-                        <div class="title">{slideTips.sidebarTitle}</div>
-                        <div class="subtitle">{slideTips.sidebarSubTitle}</div>
+                <div class="image-container" >
+                    <div class="slideToparea" style={{'background-color': slideTips.topBackColor}}>
+                        <img src={slideTips.imgUrl}  alt={slideTips.sidebarTitle} />
+                        <div class="title" style={{'color': slideTips.titleColor}}>{slideTips.sidebarTitle}</div>
+                        <div class="subtitle" style={{'color': slideTips.subColor}}>{slideTips.sidebarSubTitle}</div>
                     </div>
                 </div>
                            
-                <div class="teaser">
+                <div class="teaser" style={{'background-color': slideTips.bottomBackColor}} >
                     <div class= "tipConarea">
-                        <div class="Tiptitle">Tips</div>
-                        <div class="tipcontent">                         
+                        <div class="Tiptitle" style={{'color': slideTips.tipColor}}>Tips</div>
+                        <div class="tipcontent" style={{'color': slideTips.tipColor}}>                         
                             <TipSlide items = {slideTips.tipcontents} status={slideTips.slideStatus}/> 
                         </div>
                     </div>
@@ -75,19 +77,19 @@
         ) 
     }
 
-    function addStoreJson(obj) {
-        if(Object.keys(obj.$route.params).length>0){            
-            var param = obj.$route.params.id
+    function addStoreJson() {
+        if(Object.keys(routerObj.$route.params).length>0){            
+            var param = routerObj.$route.params.id
         }else{
             var param = 'default'
         }        
         //get new latest photojson and save preImageStore
-        axios.get('http://159.89.180.81/app/ajax.php?method=photojson&param='+param)
+        axios.get('http://159.89.180.81/app/ajax.php?method=getjson&param='+param)
             .then(response => {
                 if(response.data != "noStream"){
                     store.dispatch(addPhotoJsonAction(response.data))
                 }else{
-                    obj.redirectRouter();
+                    routerObj.redirectRouter();
                 }               
             })
             .catch(e =>{
@@ -96,17 +98,17 @@
             setTimeout(addStoreJson, 10000)
     }
 
-    function addTipstorJson(obj) {
-        axios.get('http://159.89.180.81/app/ajax.php?method=tipjson')
-            .then(response => { 
-                if(response.data != "noConfig"){
-                    store.dispatch(addTipJsonAction(response.data))
-                }
-            })
-            .catch(e =>{
-                console.log("TipContenterror",e)
-            })
-    }
+    // function addTipstorJson(obj) {
+    //     axios.get('http://159.89.180.81/app/ajax.php?method=tipjson')
+    //         .then(response => { 
+    //             if(response.data != "noConfig"){
+    //                 store.dispatch(addTipJsonAction(response.data))
+    //             }
+    //         })
+    //         .catch(e =>{
+    //             console.log("TipContenterror",e)
+    //         })
+    // }
   
   export default {
 
@@ -157,7 +159,11 @@
             slideInTimer:null,
             slideStatus: 'in',
             flag:false,
-            
+            titleColor:'',
+            subColor:'',
+            tipColor:'',
+            bottomBackColor:'',
+            topBackColor:''
         },
         logoInfo: {
             logoStatus : '',
@@ -165,7 +171,10 @@
         },
         bottomInfo: {
             bottombarStatus: '',
-            bottomImageUrl: ''
+            bottomImageUrl: '',
+            titleColor:'',
+            subColor:'',
+            backgroundColor:''
         }
       }
     },
@@ -200,9 +209,9 @@
                                 <div class="bottomImageDiv">
                                     <img class="btmImage" src={this.bottomInfo.bottomImageUrl} />
                                 </div>
-                                <div class="bottomtitle">
-                                    <div class="title">{this.slideTips.sidebarTitle}</div>
-                                    <div class = "subtitle">{this.slideTips.sidebarSubTitle}</div>
+                                <div class="bottomtitle" style={{'background-color': this.slideTips.bottomBackColor}}>
+                                    <div class="title" style={{'color': this.bottomInfo.titleColor}}>{this.slideTips.sidebarTitle}</div>
+                                    <div class = "subtitle" style={{'color': this.bottomInfo.subColor}}>{this.slideTips.sidebarSubTitle}</div>
                                 </div>
                             </div>
                         </div>             
@@ -217,8 +226,9 @@
     },
 
     beforeCreate(){
-        addStoreJson(this);
-        addTipstorJson(this);          
+        routerObj = this;
+        addStoreJson();
+        // addTipstorJson(this);          
     },
 
     created() {
@@ -238,12 +248,21 @@
                 this.slideTips.sidebarMode= tipData.sidebarSetting.mode
                 this.slideTips.slidesIn= tipData.sidebarSetting.slidesIn
                 this.slideTips.stays= tipData.sidebarSetting.stays
+                this.slideTips.titleColor= tipData.sidebarSetting.titleColor
+                this.slideTips.subColor= tipData.sidebarSetting.subColor
+                this.slideTips.tipColor= tipData.sidebarSetting.tipColor
+                this.slideTips.topBackColor= tipData.sidebarSetting.topBackColor
+                this.slideTips.bottomBackColor= tipData.sidebarSetting.bottomBackColor
+
                 //logo Setting
                 this.logoInfo.logoStatus= tipData.logoSetting.logoStatus
                 this.logoInfo.logoUrl= tipData.logoSetting.logoUrl  
                 //bottombar Setting
                 this.bottomInfo.bottombarStatus = tipData.bottombarSetting.bottombarStatus             
-                this.bottomInfo.bottomImageUrl = tipData.bottombarSetting.bottomUrl             
+                this.bottomInfo.bottomImageUrl = tipData.bottombarSetting.bottomUrl   
+                this.bottomInfo.titleColor = tipData.bottombarSetting.titleColor        
+                this.bottomInfo.subColor = tipData.bottombarSetting.subColor        
+                this.bottomInfo.backgroundColor = tipData.bottombarSetting.backgroundColor        
             }                                     
         })        
     },
@@ -520,7 +539,7 @@
         position:  relative;
         height: 100px;
         z-index: 100000;
-        background: #3a5375;
+        // background: #3a5375;
         
     }
     .bottomtitle::after {
@@ -543,7 +562,7 @@
     .bottomtitle .title{
         float: left;
         height: 100%;
-        color: white;
+        // color: white;
         line-height: 100px;
         font-size: 35px;
         font-family: "SF-Pro-Text-bold";
@@ -553,7 +572,7 @@
     .bottomtitle .subtitle {
         float: right;
         height: 100%;
-        color: #ccc;
+        // color: #ccc;
         line-height: 100px;
         font-size: 35px;
         font-family: "SF-Pro-Text-regular";

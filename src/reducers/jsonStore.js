@@ -6,13 +6,14 @@ export default function jsonStore (state = {
     tipData : {}
 }, action) {
     switch (action.type) {
-        case 'PHOTO_GET' :
-            state = { ...state, photoData: action.value }
-            break;
-        case 'TIP_GET' :
+        
+        case 'JSON_GET' :
             let actionValue = action.value
             state = {
-                    ...state, tipData: {
+                  
+                    ...state, 
+                    photoData: action.value.images,
+                    tipData: {
                         ...state.tipData,
                         
                         tipcontents: actionValue.tipcontents,

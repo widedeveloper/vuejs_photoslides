@@ -66,8 +66,8 @@
     }
     .teaser {
        
-        color:#fff;
-        background:#3a5375; 
+        /* color:#fff; */
+        /* background:#3a5375;  */
        
     }
     .teaser .tipConarea {
@@ -88,7 +88,7 @@
     }
     .image-container .slideToparea {
         padding: 35px;
-        background-color:#ffffff;  
+        /* background-color:#ffffff;   */
         height:100%;
     }
     .image-container img {        
@@ -104,7 +104,7 @@
 
     .image-container .title{
         padding-top:20px;
-        color : #c62033;
+        /* color : #c62033; */
         font-size:25px;
        
         font-family: "SF-Pro-Text-bold"

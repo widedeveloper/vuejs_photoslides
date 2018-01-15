@@ -14,31 +14,29 @@
 
         },
         methods:{
-            onload(event, zIndex) {  
-                // if(zIndex!=1)   {                      
-                    var newImage = event.currentTarget
-                    var windowHeight = window.innerHeight
-                    var windowWidth = window.innerWidth
-                    var imageWidth = newImage.naturalWidth
-                    var imageHeight = newImage.naturalHeight
+            onload(event, zIndex) {                
+                var newImage = event.currentTarget
+                var windowHeight = window.innerHeight
+                var windowWidth = window.innerWidth
+                var imageWidth = newImage.naturalWidth
+                var imageHeight = newImage.naturalHeight
 
-                    var result = this.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
-                    newImage.style.width = result.width + 'px'
-                    newImage.style.height = result.height + 'px'
-                    newImage.style.top = result.targettop + 'px'
-                    newImage.style.left = result.targetleft + 'px'
+                var result = this.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
+                newImage.style.width = result.width + 'px'
+                newImage.style.height = result.height + 'px'
+                newImage.style.top = result.targettop + 'px'
+                newImage.style.left = result.targetleft + 'px'
 
-                    var parentDiv = newImage.parentNode;
-                    if(result.portrait){                        
-                        parentDiv.style.width = windowWidth + 'px'
-                        parentDiv.style.height = windowHeight + 'px'
-                        parentDiv.style.background = 'black'
-                    }else{                   
-                        parentDiv.style.width = '0px'
-                        parentDiv.style.height =  '0px'
-                        parentDiv.style.background = 'none'
-                    }
-                // }
+                var parentDiv = newImage.parentNode;
+                if(result.portrait){                        
+                    parentDiv.style.width = windowWidth + 'px'
+                    parentDiv.style.height = windowHeight + 'px'
+                    parentDiv.style.background = 'black'
+                }else{                   
+                    parentDiv.style.width = '0px'
+                    parentDiv.style.height =  '0px'
+                    parentDiv.style.background = 'none'
+                }
             },
 
             scaleImage (srcwidth, srcheight, targetwidth, targetheight ) {
