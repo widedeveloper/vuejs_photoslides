@@ -1,36 +1,11 @@
 
-<!--template>
-    <main class="main">
-        <section class="section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <h2 class="section__title"><strong>Photo Slide</strong> </h2>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="slide"  >
-                          <div  v-for="number in [slideImages.currentNumber]" >
-                            <Slide v-bind:slide = "slideImages.images[Math.abs(slideImages.currentNumber) % slideImages.images.length]" 
-                              v-bind:animate="slideImages.amimates[Math.abs(slideImages.currentNumber) % slideImages.images.length]"
-                               v-bind:zIndex = "slideImages.currentNumber"
-                            />                                                       
-                          </div>  
-                        </div>                    
-                    </div>
-                </div>             
-            </div>
-        </section>
-    </main>   
-</template-->
     <script>
     import store from '../store'
     import {getPhotoJson as addPhotoJsonAction } from '../actions/todos'
-    // import {getTipJson as addTipJsonAction } from '../actions/todos'
+    import {getTipJson as addTipJsonAction } from '../actions/todos'
     import PhotoSlide from './ImageSlide'
     import TipSlide from './TipSlide'
+    import PreSlide from './PreSlide'
     import {connect} from 'redux-vue'
     import axios from 'axios'
     import {hasClass, addClass, removeClass} from '../libraries/lib'
@@ -38,18 +13,16 @@
 
     var routerObj = null;
 
-    function imageSlideRenderList(h,slideImages) {
+    function imageSlideRenderList(h,slideImages,slideTips) {
         return (
-            slideImages.loadDom.map((image, index)=>{ 
-             
-                return (              
+                      
                 <PhotoSlide 
-                slide = {image}
-                animate={slideImages.animates[Math.abs((index>=2)?slideImages.currentNumber:index) % slideImages.animates.length]}
-                zIndex ={(index>=2)?slideImages.loadDom.length:index}
+                    slide = {slideImages.loadDom}
+                    animate={slideImages.animates[Math.abs(slideImages.currentNumber) % slideImages.animates.length]}
+                    zIndex ={slideImages.loadDom.length}
+                    sidebarMode = {slideTips.sidebarMode}
                 />           
-                ) 
-            }) 
+               
         )   
     }
 
@@ -60,7 +33,7 @@
                 <div class="image-container" >
                     <div class="slideToparea" style={{'background-color': slideTips.topBackColor}}>
                         <img src={slideTips.imgUrl}  alt={slideTips.sidebarTitle} />
-                        <div class="title" style={{'color': slideTips.titleColor}}>{slideTips.sidebarTitle}</div>
+                        <div class="sidetitle" style={{'color': slideTips.titleColor}}>{slideTips.sidebarTitle}</div>
                         <div class="subtitle" style={{'color': slideTips.subColor}}>{slideTips.sidebarSubTitle}</div>
                     </div>
                 </div>
@@ -77,12 +50,17 @@
         ) 
     }
 
-    function addStoreJson() {
+    function checkparam () {
         if(Object.keys(routerObj.$route.params).length>0){            
             var param = routerObj.$route.params.id
         }else{
-            var param = 'default'
-        }        
+            var param = 'nokey'
+        }  
+        return param
+    }
+    function addStoreJson() {
+             
+        var param = checkparam()             
         //get new latest photojson and save preImageStore
         axios.get('http://159.89.180.81/app/ajax.php?method=getjson&param='+param)
             .then(response => {
@@ -95,20 +73,27 @@
             .catch(e =>{
                 console.log("PhotoStreamError",e)
             })
-            setTimeout(addStoreJson, 10000)
+            setTimeout(addStoreJson, 100000)
     }
 
-    // function addTipstorJson(obj) {
-    //     axios.get('http://159.89.180.81/app/ajax.php?method=tipjson')
-    //         .then(response => { 
-    //             if(response.data != "noConfig"){
-    //                 store.dispatch(addTipJsonAction(response.data))
-    //             }
-    //         })
-    //         .catch(e =>{
-    //             console.log("TipContenterror",e)
-    //         })
-    // }
+    function addTipstorJson() {
+        var param = checkparam()
+        axios.get('http://159.89.180.81/app/ajax.php?method=tipjson&param='+param)
+            .then(response => { 
+                if(response.data != "noConfig"){
+                    store.dispatch(addTipJsonAction(response.data))
+                }
+            })
+            .catch(e =>{
+                console.log("TipContenterror",e)
+            })
+    }
+  
+  function mapStateToProps(state) {
+      return {
+          jsonStore : state.jsonStore
+      }
+  }
   
   export default {
 
@@ -122,29 +107,22 @@
             currentNumber: 0,
             timer: null,            
             animates: [        
-
                 'animated zoomInUp',
                 'animated jello',
                 'animated bounceInRight',
-                'animated rotateInUpLeft',
-                'animated filp',
-                'animated rubberBand',
-                'animated tada',
+                'animated rotateInUpLeft',                
                 'animated rollIn ',
                 'animated slideInLeft',
-                'animated flipInY',
-                'animated pulse',
-                'animated jackInTheBox',
                 'animated zoomInLeft',
                 'animated flipInX',
                 'animated slideInUp',
                 'animated lightSpeedIn',
                 'animated rotateInDownLeft',
-                'animated zoomInDown',
-                'animated pulse'
-             
+                'animated tada',
+                'animated zoomInDown'             
             ],
-            loadDom: []
+            loadDom: '',
+            preloadImages:[]
         },
         slideTips: {
             tipcontents: [],
@@ -178,20 +156,22 @@
         }
       }
     },
-  
-    render (h) {      
-       
+      
+    render (h) {             
         return (
             <main class="main">
                 <section class="section" >
                     <div class="container" >
                         <div class="row">
                             <div id="photoarea" >
-                                <div class="slide"  >
-                                    <div>
-                                        {imageSlideRenderList(h,this.slideImages)}                                                                                     
-                                    </div>  
-                                </div>                    
+                                <div class="photoslide">                                    
+                                     
+                                </div>                                  
+                                <div class="preslide" >
+                                    <div class="prelist" style="height:100%">
+                                        <PreSlide currentNumber = {this.slideImages.currentNumber} />
+                                    </div>
+                                </div>     
                             </div>
                             <div id="tiparea" class="slideInit">                       
                                 <div id="slider">                                  
@@ -210,7 +190,7 @@
                                     <img class="btmImage" src={this.bottomInfo.bottomImageUrl} />
                                 </div>
                                 <div class="bottomtitle" style={{'background-color': this.slideTips.bottomBackColor}}>
-                                    <div class="title" style={{'color': this.bottomInfo.titleColor}}>{this.slideTips.sidebarTitle}</div>
+                                    <div class="bottitle" style={{'color': this.bottomInfo.titleColor}}>{this.slideTips.sidebarTitle}</div>
                                     <div class = "subtitle" style={{'color': this.bottomInfo.subColor}}>{this.slideTips.sidebarSubTitle}</div>
                                 </div>
                             </div>
@@ -228,12 +208,12 @@
     beforeCreate(){
         routerObj = this;
         addStoreJson();
-        // addTipstorJson(this);          
+        addTipstorJson();          
     },
 
     created() {
          store.subscribe(()=>{
-            let preReduxStore = store.getState()
+            let preReduxStore =store.getState()
             let photoData = preReduxStore.jsonStore.photoData
             let tipData = preReduxStore.jsonStore.tipData
             if(Object.keys(photoData).length>0 && Object.keys(tipData).length>0) {
@@ -314,10 +294,31 @@
         },
 
         replacePhotos: function (){
+            console.log('newstart')
             this.slideImages.images = this.slideImages.preimages
         },
-
-        nextAnimation: function() {            
+        scaleImage (srcwidth, srcheight, targetwidth, targetheight ) {
+            var result = { width: 0, height: 0,targetleft:0,targettop:0, portrait: false };
+            if(srcwidth / srcheight > targetwidth/targetheight){                    
+                    result.width = srcwidth * targetheight / srcheight;
+                    result.height = targetheight;                                    
+            }else{
+                if(srcwidth>srcheight){
+                    result.width = targetwidth;
+                    result.height = srcheight * targetwidth / srcwidth;                       
+                    }else{
+                    result.width = srcwidth * (targetheight - 100) / srcheight;
+                    result.height = targetheight - 100;
+                    result.portrait = true;
+                }    
+            }
+            
+            result.targetleft = ((targetwidth - result.width) / 2);
+            result.targettop = ((targetheight - result.height) / 2);                
+            return result;
+        },
+        nextAnimation: function() {      
+            
             //after finish current image loading, get new latest json photos
             if(this.slideImages.currentNumber % this.slideImages.images.length == 0){
                 this.slideImages.currentNumber += 1                            
@@ -325,11 +326,57 @@
             }else{
               this.slideImages.currentNumber += 1
             }
-              
-            this.slideImages.loadDom.push(this.slideImages.images[Math.abs(this.slideImages.currentNumber) % this.slideImages.images.length]);
-            if(this.slideImages.currentNumber>3){
-                this.slideImages.loadDom.splice(0,1)
-            } 
+
+            var NImage = new Image;
+            NImage.src = this.slideImages.images[Math.abs(this.slideImages.currentNumber) % this.slideImages.images.length]
+            NImage.setAttribute('class',this.slideImages.animates[Math.abs(this.slideImages.currentNumber) % this.slideImages.animates.length])
+            NImage.style.position = 'absolute'
+            //this.slideImages.loadDom = NImage
+           
+            var content = document.getElementsByClassName('photoslide')[0]
+            var parentDiv = document.createElement('div')
+            parentDiv.setAttribute('class','parentdiv')            
+            parentDiv.appendChild(NImage)
+            var self = this
+
+            NImage.onload = function(){                
+                 var newImage = NImage                
+                if(self.slideTips.sidebarMode == 'static'){
+                    var windowHeight = window.innerHeight 
+                    var windowWidth = window.innerWidth - 300
+                }else{
+                    var windowHeight = window.innerHeight
+                    var windowWidth = window.innerWidth
+                }
+                
+                var imageWidth = newImage.naturalWidth
+                var imageHeight = newImage.naturalHeight
+
+                var result = self.scaleImage(imageWidth,imageHeight,windowWidth,windowHeight)
+                newImage.style.width = result.width + 'px'
+                newImage.style.height = result.height + 'px'
+
+                // var parentDiv = newImage.parentNode;
+                parentDiv.style.position = "absolute";
+                if(result.portrait){                        
+                    parentDiv.style.width = windowWidth + 'px'
+                    parentDiv.style.height = windowHeight + 'px'
+                    parentDiv.style.background = 'black'
+                }else{                   
+                    parentDiv.style.width = '0px'
+                    parentDiv.style.height =  '0px'
+                    parentDiv.style.background = 'none'
+                }
+                newImage.style.top = result.targettop + 'px'
+                newImage.style.left = result.targetleft + 'px'
+                content.appendChild(parentDiv)
+            }
+               
+            
+            var parentDivs = document.getElementsByClassName('parentdiv')
+            if(parentDivs.length>5){
+                parentDivs[0].parentNode.removeChild(parentDivs[0])
+            }
         },
         //-------------------photo animation and transition--------------------//
 
@@ -553,18 +600,18 @@
         display: block;
         height: 100%;
         /* background: red; */
-        left: -47px;
+        left: -60px;
         position: absolute;
         right: 100px;
         z-index: 100001;
         -webkit-backface-visibility: hidden;
     }
-    .bottomtitle .title{
+    .bottomtitle .bottitle{
         float: left;
-        height: 100%;
+        height: 100% !important;
         // color: white;
-        line-height: 100px;
-        font-size: 35px;
+        line-height: 100px !important;
+        font-size: 35px !important;
         font-family: "SF-Pro-Text-bold";
         margin-left: 25px;
         z-index: 1000003;
@@ -579,4 +626,17 @@
         margin-right: 15px;
         z-index: 1000003;
     }
+    #photoarea .photoslide{
+        background-color: #000000;
+    }
+    #photoarea .preslide {
+        width: 60%;
+        position: fixed; 
+        height: 12%; 
+        bottom: 120px; 
+        // border: solid 1px red;
+        z-index: 100000;
+        margin: 0 20%;
+    }
+   
 </style>

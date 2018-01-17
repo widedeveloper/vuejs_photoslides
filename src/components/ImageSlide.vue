@@ -1,7 +1,8 @@
 
 <template>
-    <div style="position:absolute" >                   
-        <img :src="slide" :class="animate"  @load ="onload($event,zIndex)" :style = "{'z-index':zIndex}"/>                    
+    <div :style = "{'z-index':zIndex}" >                   
+        <img :src="slide.src" :class="animate"  @load ="onload($event,zIndex)" />                    
+        <!-- {{this.slide}} -->
     </div>
 </template>
 <script>
@@ -9,15 +10,22 @@
         data() {
             return {}
         },       
-        props: ['slide','animate','zIndex'],
+        props: ['slide','animate','zIndex','sidebarMode'],
         updated() {
 
         },
         methods:{
             onload(event, zIndex) {                
                 var newImage = event.currentTarget
-                var windowHeight = window.innerHeight
-                var windowWidth = window.innerWidth
+                
+                if(this.sidebarMode == 'static'){
+                    var windowHeight = window.innerHeight 
+                    var windowWidth = window.innerWidth - 300
+                }else{
+                    var windowHeight = window.innerHeight
+                    var windowWidth = window.innerWidth
+                }
+                
                 var imageWidth = newImage.naturalWidth
                 var imageHeight = newImage.naturalHeight
 
@@ -28,15 +36,18 @@
                 newImage.style.left = result.targetleft + 'px'
 
                 var parentDiv = newImage.parentNode;
-                if(result.portrait){                        
+                parentDiv.style.position = "absolute";
+                // if(result.portrait){                        
                     parentDiv.style.width = windowWidth + 'px'
                     parentDiv.style.height = windowHeight + 'px'
                     parentDiv.style.background = 'black'
-                }else{                   
-                    parentDiv.style.width = '0px'
-                    parentDiv.style.height =  '0px'
-                    parentDiv.style.background = 'none'
-                }
+                // }else{                   
+                //     parentDiv.style.width = '0px'
+                //     parentDiv.style.height =  '0px'
+                //     parentDiv.style.background = 'none'
+                // }
+
+                // style="position:absolute;background:#000000"
             },
 
             scaleImage (srcwidth, srcheight, targetwidth, targetheight ) {

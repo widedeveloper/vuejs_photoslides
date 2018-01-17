@@ -8,11 +8,19 @@ export default function jsonStore (state = {
     switch (action.type) {
         
         case 'JSON_GET' :
+            state = {
+                  
+                    ...state, 
+                    photoData: action.value.images
+                   
+                }
+            break;
+        case 'CONFIG_GET':
             let actionValue = action.value
             state = {
                   
                     ...state, 
-                    photoData: action.value.images,
+                   
                     tipData: {
                         ...state.tipData,
                         
@@ -26,6 +34,7 @@ export default function jsonStore (state = {
                     } 
                 }
             break;
+                
     }
     return state
 }
