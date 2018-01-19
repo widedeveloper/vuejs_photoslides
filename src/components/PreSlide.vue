@@ -1,6 +1,6 @@
 <template>
     <swiper :options="swiperOption" style="height:100%">
-        <swiper-slide  v-for = "(item,index) in tempDom" v-html = "item.innerHTML" :key="index">          
+        <swiper-slide  v-for = "(item,index) in tempDom" v-html = "item.outerHTML" :key="index">          
         </swiper-slide>
     </swiper>
 </template>
@@ -19,7 +19,7 @@ export default {
   data() {
     return {
       swiperOption: {
-        slidesPerView: 5,
+        slidesPerView: 9,
         spaceBetween: 20,
         loop: true,
         slidePerGroup: 1
@@ -39,23 +39,23 @@ export default {
         var loadDom = [];
         var imageUrl = [];
         if (this.slidepreImgs.length > 0) {
-            var parentWidth =document.getElementsByClassName("prelist")[0].clientWidth / 5;
+            var parentWidth =document.getElementsByClassName("prelist")[0].clientWidth / 9;
             var parentHeight = document.getElementsByClassName("prelist")[0].clientHeight;
-            for (var i = this.currentNumber; i < this.currentNumber + 5; i++) {
+            for (var i = this.currentNumber+1; i < this.currentNumber + 10; i++) {
                 imageUrl[i] = this.slidepreImgs[ Math.abs(i) % this.slidepreImgs.length];
             }
             var self = this;           
+
             imageUrl.map((url, index)=> {
                 var ImageObj = new Image();
-                ImageObj.src = url;
-                ImageObj.setAttribute("class", "animated slideInRight");
+                ImageObj.src = url;               
                 ImageObj.style.position = "absolute";
-                ImageObj.style.zIndex = "1000000000";
+                ImageObj.style.zIndex = "10000";
 
                 ImageObj.onload = function() {
                     var imageWidth = ImageObj.naturalWidth;
-                    var imageHeight = ImageObj.naturalHeight;                   
-                   
+                    var imageHeight = ImageObj.naturalHeight;
+                    
                     var result = self.scaleImage(
                         imageWidth,
                         imageHeight,
@@ -68,23 +68,19 @@ export default {
                     ImageObj.style.left = result.targetleft + 'px'                  
                     
                     var newDiv = document.createElement("div");
+                    newDiv.style.background = "#000000"
+                    newDiv.style.position = "relative"
+                    newDiv.style.width = parentWidth -5+ 'px'
+                    newDiv.style.height = parentHeight + 'px'
+
+                    newDiv.setAttribute("class", "animated slideInRight");
                     newDiv.appendChild(ImageObj);
                     loadDom.push(newDiv);
                 }
             });
             this.tempDom = loadDom
-            
-            // return loadDom
-            // document.getElementsByClassName('prelist')[0].style.width = preslide.clientWidth + (2 * preslide.clientWidth/6) + 'px';
-            // document.getElementsByClassName('prelist')[0].style.left = -1 * preslide.clientWidth/6 + 'px';
-            // document.getElementsByClassName('prelist')[0].style.left = -1 * parentWidth + 'px';
-
-            // })
         }
     }
-     
-   
-
   },
 
   methods: {
@@ -104,8 +100,9 @@ export default {
           result.width = targetwidth;
           result.height = srcheight * targetwidth / srcwidth;
         } else {
-          result.width = targetwidth;
-          result.height = srcheight * targetwidth / srcwidth;
+          result.width = srcwidth * (targetheight ) / srcheight;
+          result.height = targetheight;
+          result.portrait = true;
         }
       }
       result.targetleft = (targetwidth - result.width) / 2;

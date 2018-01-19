@@ -2,7 +2,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import MainSlides from '@/components/MainSlides'
-import NostreamData from '@/components/NostreamData'
 
 Vue.use(Router)
 

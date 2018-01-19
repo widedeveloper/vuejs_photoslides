@@ -21,7 +21,8 @@ export function getTipJson (tip_json) {
             imgUrl:tip_json.imageUrl,
             sidebarSetting: tip_json.sidebarSetting,
             logoSetting : tip_json.logoSetting,
-            bottombarSetting: tip_json.bottombarSetting    
+            bottombarSetting: tip_json.bottombarSetting,
+            prebarSetting: tip_json.preimageSetting    
 
         }
     }

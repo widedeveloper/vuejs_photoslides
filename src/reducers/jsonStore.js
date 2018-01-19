@@ -30,7 +30,8 @@ export default function jsonStore (state = {
                         imgUrl:actionValue.imgUrl,
                         sidebarSetting: actionValue.sidebarSetting,
                         logoSetting : actionValue.logoSetting,
-                        bottombarSetting: actionValue.bottombarSetting
+                        bottombarSetting: actionValue.bottombarSetting,
+                        prebarSetting:actionValue.prebarSetting
                     } 
                 }
             break;

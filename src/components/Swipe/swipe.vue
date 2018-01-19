@@ -1,12 +1,50 @@
 <style>
-    .mint-swipe{overflow:hidden;position:relative;height:0px;margin-top: 30px; }
-    .mint-swipe-items-wrap{-webkit-transform:translateZ(0);transform:translateZ(0)}
-    .mint-swipe-items-wrap>div{position:absolute;-webkit-transform:translateX(-100%);
-    transform:translateX(-100%);width:100%;height:100%;display:none}
-    .mint-swipe-items-wrap>div.is-active{display:block;-webkit-transform:none;transform:none}
-    .mint-swipe-indicators{position:absolute;bottom:10px;left:50%;-webkit-transform:translateX(-50%);
-    transform:translateX(-50%)}.mint-swipe-indicator{width:15px;height:5px;display:inline-block;
-    background:#000;opacity:.2;margin:0 3px}.mint-swipe-indicator.is-active{background:#fff}
+    .mint-swipe{
+      overflow:hidden;position:relative;height:0px;margin-top: 30px; 
+    }
+    .mint-swipe-items-wrap{
+      -webkit-transform:translateZ(0);
+      transform:translateZ(0);
+    }
+    .mint-swipe-items-wrap>div{
+      position:absolute;
+      -webkit-transform:translateX(-100%);
+      transform:translateX(-100%);
+      width:100%;
+      height:100%;
+      display:none
+    }
+    .mint-swipe-items-wrap>div.is-active{
+      display:block;
+      -webkit-transform:none;
+      transform:none
+    }
+    .mint-swipe-indicators{
+      position:absolute;
+      bottom:10px;
+      width: 100%;
+      text-align: center;
+     
+    }
+    .mint-swipe-indicator{
+      width: 23px;
+      height: 23px;
+      text-align: center;
+      display: inline-block;
+      color:white;
+      /* background: #000; */
+      /* opacity: .5; */
+      margin: 0;
+      border-radius: 50%;
+      padding: 1px;
+      line-height: 23px;
+      font-size: 16px;      
+    }
+    .mint-swipe-indicator.is-active{
+      /* background:#fff;
+      color: red; */
+         border: solid 1px rgb(202, 19, 19)
+    }
 </style>
 
 <template>
@@ -17,8 +55,9 @@
     <div class="mint-swipe-indicators" v-show="showIndicators">
       <div class="mint-swipe-indicator"
            v-for="(page, $index) in pages"
-           :key="$index"
-           :class="{ 'is-active': $index === index }"></div>
+           :key="$index"  
+            :class="{ 'is-active': $index == index }"   
+           >{{$index + 1}}</div>
     </div>
   </div>
 </template>
@@ -116,6 +155,7 @@
       },
 
       translate(element, offset, speed, callback) {
+
         if (speed) {
           this.animating = true;
           element.style.webkitTransition = '-webkit-transform ' + speed + 'ms ease-in-out';
@@ -145,6 +185,7 @@
       },
 
       reInitPages() {
+        
         var children = this.$children;
         this.noDrag = children.length === 1 && this.noDragWhenSingle;
 
@@ -173,6 +214,17 @@
         var index = this.index;
         var pages = this.pages;
         var pageCount = pages.length;
+
+        // :class="{ 'is-active': $index === index }"
+        var Indicator = document.getElementsByClassName('mint-swipe-indicator')
+        for(var i =0; i<Indicator.length;i++){
+          removeClass(Indicator[i],'is-active')
+        }
+        if(index==2){
+          addClass(Indicator[0],'is-active')
+        }else{
+         addClass(Indicator[index+1],'is-active')
+        }
 
         if (!options || towards === 'goto') {
           options = options || {};
