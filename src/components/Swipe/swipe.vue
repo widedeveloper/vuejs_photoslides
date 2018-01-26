@@ -1,50 +1,50 @@
 <style>
-    .mint-swipe{
-      overflow:hidden;position:relative;height:0px;margin-top: 30px; 
-    }
-    .mint-swipe-items-wrap{
-      -webkit-transform:translateZ(0);
-      transform:translateZ(0);
-    }
-    .mint-swipe-items-wrap>div{
-      position:absolute;
-      -webkit-transform:translateX(-100%);
-      transform:translateX(-100%);
-      width:100%;
-      height:100%;
-      display:none
-    }
-    .mint-swipe-items-wrap>div.is-active{
-      display:block;
-      -webkit-transform:none;
-      transform:none
-    }
-    .mint-swipe-indicators{
-      position:absolute;
-      bottom:10px;
-      width: 100%;
-      text-align: center;
-     
-    }
-    .mint-swipe-indicator{
-      width: 23px;
-      height: 23px;
-      text-align: center;
-      display: inline-block;
-      color:white;
-      /* background: #000; */
-      /* opacity: .5; */
-      margin: 0;
-      border-radius: 50%;
-      padding: 1px;
-      line-height: 23px;
-      font-size: 16px;      
-    }
-    .mint-swipe-indicator.is-active{
-      /* background:#fff;
-      color: red; */
-         border: solid 1px rgb(202, 19, 19)
-    }
+.mint-swipe {
+  overflow: hidden;
+  position: relative;
+  height: 0px;
+  margin-top: 30px;
+}
+.mint-swipe-items-wrap {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+.mint-swipe-items-wrap > div {
+  position: absolute;
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+.mint-swipe-items-wrap > div.is-active {
+  display: block;
+  -webkit-transform: none;
+  transform: none;
+}
+.mint-swipe-indicators {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+  text-align: center;
+}
+.mint-swipe-indicator {
+  width: 23px;
+  height: 23px;
+  text-align: center;
+  display: inline-block;
+  color: white;
+  /* background: #000; */
+  /* opacity: .5; */
+  margin: 0;
+  border-radius: 50%;
+  padding: 1px;
+  line-height: 23px;
+  font-size: 16px;
+}
+.is-active {
+  /* border:solid 1px */
+}
 </style>
 
 <template>
@@ -63,528 +63,569 @@
 </template>
 
 <script>
-  import { once } from 'wind-dom/src/event';
-  import { addClass, removeClass } from 'wind-dom/src/class';
+import { once } from "wind-dom/src/event";
+import { addClass, removeClass } from "wind-dom/src/class";
 
-  export default {
-    name: 'mt-swipe',
+export default {
+  name: "mt-swipe",
+  data() {
+    return {
+      slideTips: {}
+    };
+  },
 
-    created() {
-      this.dragState = {};
-    },
-
-    data() {
-      return {
-        ready: false,
-        dragging: false,
-        userScrolling: false,
-        animating: false,
-        index: 0,
-        pages: [],
-        timer: null,
-        reInitTimer: null,
-        noDrag: false
-      };
-    },
-
-    props: {
-      speed: {
-        type: Number,
-        default: 300
-      },
-
-      defaultIndex: {
-        type: Number,
-        default: 0
-      },
-
-      disabled: {
-        type: Boolean,
-        default: false
-      },
-
-      auto: {
-        type: Number,
-        default: 3000
-      },
-
-      continuous: {
-        type: Boolean,
-        default: true
-      },
-
-      showIndicators: {
-        type: Boolean,
-        default: true
-      },
-
-      noDragWhenSingle: {
-        type: Boolean,
-        default: true
-      },
-
-      prevent: {
-        type: Boolean,
-        default: false
-      },
-
-      propagation: {
-        type: Boolean,
-        default: false
+  beforeCreate() {
+    this.$store.subscribe(() => {
+      let tipData = this.$store.getState().jsonStore.tipData;
+      if (Object.keys(tipData).length > 0) {
+        this.slideTips = tipData;
       }
+    });
+  },
+  created() {
+    this.slideTips= {}
+    this.dragState = {};
+  },
 
+  updated() {
+    if (Object.keys(this.slideTips).length > 0) {
+      var activeObjs = document.querySelectorAll(
+        ".mint-swipe-indicator.is-active"
+      );
+
+      if (activeObjs.length > 0) {
+        for (
+          var i = 0;
+          i < document.querySelectorAll(".mint-swipe-indicator").length;
+          i++
+        ) {
+          document.querySelectorAll(".mint-swipe-indicator")[i].style.border =
+            "";
+        }
+
+        activeObjs[0].style.borderColor = this.slideTips.sidebarSetting.indicatorColor;
+        activeObjs[0].style.borderStyle = "solid";
+        activeObjs[0].style.borderWidth = "2px";
+      }
+    }
+  },
+
+  data() {
+    return {
+      ready: false,
+      dragging: false,
+      userScrolling: false,
+      animating: false,
+      index: 0,
+      pages: [],
+      timer: null,
+      reInitTimer: null,
+      noDrag: false
+    };
+  },
+
+  props: {
+    speed: {
+      type: Number,
+      default: 300
     },
 
-    methods: {
-      swipeItemCreated() {
-        if (!this.ready) return;
+    defaultIndex: {
+      type: Number,
+      default: 0
+    },
 
-        clearTimeout(this.reInitTimer);
-        this.reInitTimer = setTimeout(() => {
-          this.reInitPages();
-        }, 100);
-      },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
 
-      swipeItemDestroyed() {
-        if (!this.ready) return;
+    auto: {
+      type: Number,
+      default: 3000
+    },
 
-        clearTimeout(this.reInitTimer);
-        this.reInitTimer = setTimeout(() => {
-          this.reInitPages();
-        }, 100);
-      },
+    continuous: {
+      type: Boolean,
+      default: true
+    },
 
-      translate(element, offset, speed, callback) {
+    showIndicators: {
+      type: Boolean,
+      default: true
+    },
 
-        if (speed) {
-          this.animating = true;
-          element.style.webkitTransition = '-webkit-transform ' + speed + 'ms ease-in-out';
-          setTimeout(() => {
-            element.style.webkitTransform = `translate3d(${offset}px, 0, 0)`;
-          }, 50);
+    noDragWhenSingle: {
+      type: Boolean,
+      default: true
+    },
 
-          var called = false;
+    prevent: {
+      type: Boolean,
+      default: false
+    },
 
-          var transitionEndCallback = () => {
-            if (called) return;
-            called = true;
-            this.animating = false;
-            element.style.webkitTransition = '';
-            element.style.webkitTransform = '';
-            if (callback) {
-              callback.apply(this, arguments);
-            }
-          };
+    propagation: {
+      type: Boolean,
+      default: false
+    }
+  },
 
-          once(element, 'webkitTransitionEnd', transitionEndCallback);
-          setTimeout(transitionEndCallback, speed + 100); // webkitTransitionEnd maybe not fire on lower version android.
-        } else {
-          element.style.webkitTransition = '';
+  methods: {
+    swipeItemCreated() {
+      if (!this.ready) return;
+
+      clearTimeout(this.reInitTimer);
+      this.reInitTimer = setTimeout(() => {
+        this.reInitPages();
+      }, 100);
+    },
+
+    swipeItemDestroyed() {
+      if (!this.ready) return;
+
+      clearTimeout(this.reInitTimer);
+      this.reInitTimer = setTimeout(() => {
+        this.reInitPages();
+      }, 100);
+    },
+
+    translate(element, offset, speed, callback) {
+      if (speed) {
+        this.animating = true;
+        element.style.webkitTransition =
+          "-webkit-transform " + speed + "ms ease-in-out";
+        setTimeout(() => {
           element.style.webkitTransform = `translate3d(${offset}px, 0, 0)`;
-        }
-      },
+        }, 50);
 
-      reInitPages() {
-        
-        var children = this.$children;
-        this.noDrag = children.length === 1 && this.noDragWhenSingle;
+        var called = false;
 
-        var pages = [];
-        this.index = this.defaultIndex;
-        
-        children.forEach((child, index) => {
-          pages.push(child.$el);
-
-          removeClass(child.$el, 'is-active');
-
-          if (index === this.defaultIndex) {
-            addClass(child.$el, 'is-active');
-          }
-        });
-
-        this.pages = pages;
-      },
-
-      doAnimate(towards, options) {
-        if (this.$children.length === 0) return;
-        if (!options && this.$children.length < 2) return;
-
-        var prevPage, nextPage, currentPage, pageWidth, offsetLeft;
-        var speed = this.speed || 300;
-        var index = this.index;
-        var pages = this.pages;
-        var pageCount = pages.length;
-
-        // :class="{ 'is-active': $index === index }"
-        var Indicator = document.getElementsByClassName('mint-swipe-indicator')
-        for(var i =0; i<Indicator.length;i++){
-          removeClass(Indicator[i],'is-active')
-        }
-        if(index==2){
-          addClass(Indicator[0],'is-active')
-        }else{
-         addClass(Indicator[index+1],'is-active')
-        }
-
-        if (!options || towards === 'goto') {
-          options = options || {};
-          pageWidth = this.$el.clientWidth;
-          currentPage = pages[index];
-          if (towards === 'goto') {
-            prevPage = options.prevPage;
-            nextPage = options.nextPage;
-          } else {
-            prevPage = pages[index - 1];
-            nextPage = pages[index + 1];
-          }
-
-          if (this.continuous && pages.length > 1) {
-            if (!prevPage) {
-              prevPage = pages[pages.length - 1];
-            }
-            if (!nextPage) {
-              nextPage = pages[0];
-            }
-          }
-          if (prevPage) {
-            prevPage.style.display = 'block';
-            this.translate(prevPage, -pageWidth);
-          }
-          if (nextPage) {
-            nextPage.style.display = 'block';
-            this.translate(nextPage, pageWidth);
-          }
-        } else {
-          prevPage = options.prevPage;
-          currentPage = options.currentPage;
-          nextPage = options.nextPage;
-          pageWidth = options.pageWidth;
-          offsetLeft = options.offsetLeft;
-        }
-
-        var newIndex;
-
-        var oldPage = this.$children[index].$el;
-
-        if (towards === 'prev') {
-          if (index > 0) {
-            newIndex = index - 1;
-          }
-          if (this.continuous && index === 0) {
-            newIndex = pageCount - 1;
-          }
-        } else if (towards === 'next') {
-          if (index < pageCount - 1) {
-            newIndex = index + 1;
-          }
-          if (this.continuous && index === pageCount - 1) {
-            newIndex = 0;
-          }
-        } else if (towards === 'goto') {
-          if (options.newIndex > -1 && options.newIndex < pageCount) {
-            newIndex = options.newIndex;
-          }
-        }
-
-        var callback = () => {
-          if (newIndex !== undefined) {
-            var newPage = this.$children[newIndex].$el;
-            removeClass(oldPage, 'is-active');
-            addClass(newPage, 'is-active');
-
-            this.index = newIndex;
-
-            this.$emit('change', newIndex, index);
-          }
-
-          if (prevPage) {
-            prevPage.style.display = '';
-          }
-
-          if (nextPage) {
-            nextPage.style.display = '';
+        var transitionEndCallback = () => {
+          if (called) return;
+          called = true;
+          this.animating = false;
+          element.style.webkitTransition = "";
+          element.style.webkitTransform = "";
+          if (callback) {
+            callback.apply(this, arguments);
           }
         };
 
-        setTimeout(() => {
-          if (towards === 'next') {
-            this.translate(currentPage, -pageWidth, speed, callback);
-            if (nextPage) {
-              this.translate(nextPage, 0, speed);
-            }
-          } else if (towards === 'prev') {
-            this.translate(currentPage, pageWidth, speed, callback);
-            if (prevPage) {
-              this.translate(prevPage, 0, speed);
-            }
-          } else if (towards === 'goto') {
-            if (prevPage) {
-              this.translate(currentPage, pageWidth, speed, callback);
-              this.translate(prevPage, 0, speed);
-            } else if (nextPage) {
-              this.translate(currentPage, -pageWidth, speed, callback);
-              this.translate(nextPage, 0, speed);
-            }
-          } else {
-            this.translate(currentPage, 0, speed, callback);
-            if (typeof offsetLeft !== 'undefined') {
-              if (prevPage && offsetLeft > 0) {
-                this.translate(prevPage, pageWidth * -1, speed);
-              }
-              if (nextPage && offsetLeft < 0) {
-                this.translate(nextPage, pageWidth, speed);
-              }
-            } else {
-              if (prevPage) {
-                this.translate(prevPage, pageWidth * -1, speed);
-              }
-              if (nextPage) {
-                this.translate(nextPage, pageWidth, speed);
-              }
-            }
-          }
-        }, 10);
-      },
+        once(element, "webkitTransitionEnd", transitionEndCallback);
+        setTimeout(transitionEndCallback, speed + 100); // webkitTransitionEnd maybe not fire on lower version android.
+      } else {
+        element.style.webkitTransition = "";
+        element.style.webkitTransform = `translate3d(${offset}px, 0, 0)`;
+      }
+    },
 
-      next() {
-        this.doAnimate('next');
-      },
+    reInitPages() {
+      var children = this.$children;
+      this.noDrag = children.length === 1 && this.noDragWhenSingle;
 
-      prev() {
-        this.doAnimate('prev');
-      },
+      var pages = [];
+      this.index = this.defaultIndex;
 
-      goto(newIndex) {
-        if (this.index === newIndex) return;
+      children.forEach((child, index) => {
+        pages.push(child.$el);
 
-        if (newIndex < this.index) {
-          this.doAnimate('goto', {
-            newIndex,
-            prevPage: this.pages[newIndex]
-          });
-        } else {
-          this.doAnimate('goto', {
-            newIndex,
-            nextPage: this.pages[newIndex]
-          });
+        removeClass(child.$el, "is-active");
+
+        if (index === this.defaultIndex) {
+          addClass(child.$el, "is-active");
         }
-      },
+      });
 
-      doOnTouchStart(event) {
-        if (this.noDrag || this.disabled) return;
+      this.pages = pages;
+    },
 
-        var element = this.$el;
-        var dragState = this.dragState;
-        var touch = event.changedTouches ? event.changedTouches[0] : event;
+    doAnimate(towards, options) {
+      if (this.$children.length === 0) return;
+      if (!options && this.$children.length < 2) return;
 
-        dragState.startTime = new Date();
-        dragState.startLeft = touch.pageX;
-        dragState.startTop = touch.pageY;
-        dragState.startTopAbsolute = touch.clientY;
+      var prevPage, nextPage, currentPage, pageWidth, offsetLeft;
+      var speed = this.speed || 300;
+      var index = this.index;
+      var pages = this.pages;
+      var pageCount = pages.length;
 
-        dragState.pageWidth = element.offsetWidth;
-        dragState.pageHeight = element.offsetHeight;
+      // :class="{ 'is-active': $index === index }"
+      var Indicator = document.getElementsByClassName("mint-swipe-indicator");
+      for (var i = 0; i < Indicator.length; i++) {
+        removeClass(Indicator[i], "is-active");
+      }
+      if (index == 2) {
+        addClass(Indicator[0], "is-active");
+      } else {
+        addClass(Indicator[index + 1], "is-active");
+      }
 
-        var prevPage = this.$children[this.index - 1];
-        var dragPage = this.$children[this.index];
-        var nextPage = this.$children[this.index + 1];
+      if (!options || towards === "goto") {
+        options = options || {};
+        pageWidth = this.$el.clientWidth;
+        currentPage = pages[index];
+        if (towards === "goto") {
+          prevPage = options.prevPage;
+          nextPage = options.nextPage;
+        } else {
+          prevPage = pages[index - 1];
+          nextPage = pages[index + 1];
+        }
 
-        if (this.continuous && this.pages.length > 1) {
+        if (this.continuous && pages.length > 1) {
           if (!prevPage) {
-            prevPage = this.$children[this.$children.length - 1];
+            prevPage = pages[pages.length - 1];
           }
           if (!nextPage) {
-            nextPage = this.$children[0];
+            nextPage = pages[0];
           }
         }
+        if (prevPage) {
+          prevPage.style.display = "block";
+          this.translate(prevPage, -pageWidth);
+        }
+        if (nextPage) {
+          nextPage.style.display = "block";
+          this.translate(nextPage, pageWidth);
+        }
+      } else {
+        prevPage = options.prevPage;
+        currentPage = options.currentPage;
+        nextPage = options.nextPage;
+        pageWidth = options.pageWidth;
+        offsetLeft = options.offsetLeft;
+      }
 
-        dragState.prevPage = prevPage ? prevPage.$el : null;
-        dragState.dragPage = dragPage ? dragPage.$el : null;
-        dragState.nextPage = nextPage ? nextPage.$el : null;
+      var newIndex;
 
-        if (dragState.prevPage) {
-          dragState.prevPage.style.display = 'block';
+      var oldPage = this.$children[index].$el;
+
+      if (towards === "prev") {
+        if (index > 0) {
+          newIndex = index - 1;
+        }
+        if (this.continuous && index === 0) {
+          newIndex = pageCount - 1;
+        }
+      } else if (towards === "next") {
+        if (index < pageCount - 1) {
+          newIndex = index + 1;
+        }
+        if (this.continuous && index === pageCount - 1) {
+          newIndex = 0;
+        }
+      } else if (towards === "goto") {
+        if (options.newIndex > -1 && options.newIndex < pageCount) {
+          newIndex = options.newIndex;
+        }
+      }
+
+      var callback = () => {
+        if (newIndex !== undefined) {
+          var newPage = this.$children[newIndex].$el;
+          removeClass(oldPage, "is-active");
+          addClass(newPage, "is-active");
+
+          this.index = newIndex;
+
+          this.$emit("change", newIndex, index);
         }
 
-        if (dragState.nextPage) {
-          dragState.nextPage.style.display = 'block';
+        if (prevPage) {
+          prevPage.style.display = "";
         }
-      },
 
-      doOnTouchMove(event) {
-        if (this.noDrag || this.disabled) return;
+        if (nextPage) {
+          nextPage.style.display = "";
+        }
+      };
 
-        var dragState = this.dragState;
-        var touch = event.changedTouches ? event.changedTouches[0] : event;
-
-        dragState.currentLeft = touch.pageX;
-        dragState.currentTop = touch.pageY;
-        dragState.currentTopAbsolute = touch.clientY;
-
-        var offsetLeft = dragState.currentLeft - dragState.startLeft;
-        var offsetTop = dragState.currentTopAbsolute - dragState.startTopAbsolute;
-
-        var distanceX = Math.abs(offsetLeft);
-        var distanceY = Math.abs(offsetTop);
-        if (distanceX < 5 || (distanceX >= 5 && distanceY >= 1.73 * distanceX)) {
-          this.userScrolling = true;
-          return;
+      setTimeout(() => {
+        if (towards === "next") {
+          this.translate(currentPage, -pageWidth, speed, callback);
+          if (nextPage) {
+            this.translate(nextPage, 0, speed);
+          }
+        } else if (towards === "prev") {
+          this.translate(currentPage, pageWidth, speed, callback);
+          if (prevPage) {
+            this.translate(prevPage, 0, speed);
+          }
+        } else if (towards === "goto") {
+          if (prevPage) {
+            this.translate(currentPage, pageWidth, speed, callback);
+            this.translate(prevPage, 0, speed);
+          } else if (nextPage) {
+            this.translate(currentPage, -pageWidth, speed, callback);
+            this.translate(nextPage, 0, speed);
+          }
         } else {
-          this.userScrolling = false;
-          event.preventDefault();
-        }
-        offsetLeft = Math.min(Math.max(-dragState.pageWidth + 1, offsetLeft), dragState.pageWidth - 1);
-
-        var towards = offsetLeft < 0 ? 'next' : 'prev';
-
-        if (dragState.prevPage && towards === 'prev') {
-          this.translate(dragState.prevPage, offsetLeft - dragState.pageWidth);
-        }
-        this.translate(dragState.dragPage, offsetLeft);
-        if (dragState.nextPage && towards === 'next') {
-          this.translate(dragState.nextPage, offsetLeft + dragState.pageWidth);
-        }
-      },
-
-      doOnTouchEnd() {
-        if (this.noDrag || this.disabled) return;
-
-        var dragState = this.dragState;
-
-        var dragDuration = new Date() - dragState.startTime;
-        var towards = null;
-
-        var offsetLeft = dragState.currentLeft - dragState.startLeft;
-        var offsetTop = dragState.currentTop - dragState.startTop;
-        var pageWidth = dragState.pageWidth;
-        var index = this.index;
-        var pageCount = this.pages.length;
-
-        if (dragDuration < 300) {
-          let fireTap = Math.abs(offsetLeft) < 5 && Math.abs(offsetTop) < 5;
-          if (isNaN(offsetLeft) || isNaN(offsetTop)) {
-            fireTap = true;
-          }
-          if (fireTap) {
-            this.$children[this.index].$emit('tap');
+          this.translate(currentPage, 0, speed, callback);
+          if (typeof offsetLeft !== "undefined") {
+            if (prevPage && offsetLeft > 0) {
+              this.translate(prevPage, pageWidth * -1, speed);
+            }
+            if (nextPage && offsetLeft < 0) {
+              this.translate(nextPage, pageWidth, speed);
+            }
+          } else {
+            if (prevPage) {
+              this.translate(prevPage, pageWidth * -1, speed);
+            }
+            if (nextPage) {
+              this.translate(nextPage, pageWidth, speed);
+            }
           }
         }
+      }, 10);
+    },
 
-        if (dragDuration < 300 && dragState.currentLeft === undefined) return;
+    next() {
+      this.doAnimate("next");
+    },
 
-        if (dragDuration < 300 || Math.abs(offsetLeft) > pageWidth / 2) {
-          towards = offsetLeft < 0 ? 'next' : 'prev';
-        }
+    prev() {
+      this.doAnimate("prev");
+    },
 
-        if (!this.continuous) {
-          if ((index === 0 && towards === 'prev') || (index === pageCount - 1 && towards === 'next')) {
-            towards = null;
-          }
-        }
+    goto(newIndex) {
+      if (this.index === newIndex) return;
 
-        if (this.$children.length < 2) {
-          towards = null;
-        }
-
-        this.doAnimate(towards, {
-          offsetLeft: offsetLeft,
-          pageWidth: dragState.pageWidth,
-          prevPage: dragState.prevPage,
-          currentPage: dragState.dragPage,
-          nextPage: dragState.nextPage
+      if (newIndex < this.index) {
+        this.doAnimate("goto", {
+          newIndex,
+          prevPage: this.pages[newIndex]
         });
-
-        this.dragState = {};
-      },
-
-      dragStartEvent(event) {
-        if (this.prevent) {
-          event.preventDefault();
-        }
-        if (this.animating) return;
-        this.dragging = true;
-        this.userScrolling = false;
-        this.doOnTouchStart(event);
-      },
-
-      dragMoveEvent(event) {
-        if (!this.dragging) return;
-        this.doOnTouchMove(event);
-      },
-
-      dragEndEvent(event) {
-        if (this.userScrolling) {
-          this.dragging = false;
-          this.dragState = {};
-          return;
-        }
-        if (!this.dragging) return;
-        this.doOnTouchEnd(event);
-        this.dragging = false;
+      } else {
+        this.doAnimate("goto", {
+          newIndex,
+          nextPage: this.pages[newIndex]
+        });
       }
     },
 
-    destroyed() {
-      if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
-      }
-      if (this.reInitTimer) {
-        clearTimeout(this.reInitTimer);
-        this.reInitTimer = null;
-      }
-    },
-    mounted() {
-      this.ready = true;
-
-      if (this.auto > 0) {
-        this.timer = setInterval(() => {
-          if (!this.dragging && !this.animating) {
-            this.next();
-          }
-        }, this.auto);
-      }
-
-      this.reInitPages();
+    doOnTouchStart(event) {
+      if (this.noDrag || this.disabled) return;
 
       var element = this.$el;
+      var dragState = this.dragState;
+      var touch = event.changedTouches ? event.changedTouches[0] : event;
 
-      element.addEventListener('touchstart', (event) => {
-        if (this.prevent) {
-          event.preventDefault();
+      dragState.startTime = new Date();
+      dragState.startLeft = touch.pageX;
+      dragState.startTop = touch.pageY;
+      dragState.startTopAbsolute = touch.clientY;
+
+      dragState.pageWidth = element.offsetWidth;
+      dragState.pageHeight = element.offsetHeight;
+
+      var prevPage = this.$children[this.index - 1];
+      var dragPage = this.$children[this.index];
+      var nextPage = this.$children[this.index + 1];
+
+      if (this.continuous && this.pages.length > 1) {
+        if (!prevPage) {
+          prevPage = this.$children[this.$children.length - 1];
         }
-        if (this.propagation) {
-          event.stopPropagation();
+        if (!nextPage) {
+          nextPage = this.$children[0];
         }
-        if (this.animating) return;
-        this.dragging = true;
+      }
+
+      dragState.prevPage = prevPage ? prevPage.$el : null;
+      dragState.dragPage = dragPage ? dragPage.$el : null;
+      dragState.nextPage = nextPage ? nextPage.$el : null;
+
+      if (dragState.prevPage) {
+        dragState.prevPage.style.display = "block";
+      }
+
+      if (dragState.nextPage) {
+        dragState.nextPage.style.display = "block";
+      }
+    },
+
+    doOnTouchMove(event) {
+      if (this.noDrag || this.disabled) return;
+
+      var dragState = this.dragState;
+      var touch = event.changedTouches ? event.changedTouches[0] : event;
+
+      dragState.currentLeft = touch.pageX;
+      dragState.currentTop = touch.pageY;
+      dragState.currentTopAbsolute = touch.clientY;
+
+      var offsetLeft = dragState.currentLeft - dragState.startLeft;
+      var offsetTop = dragState.currentTopAbsolute - dragState.startTopAbsolute;
+
+      var distanceX = Math.abs(offsetLeft);
+      var distanceY = Math.abs(offsetTop);
+      if (distanceX < 5 || (distanceX >= 5 && distanceY >= 1.73 * distanceX)) {
+        this.userScrolling = true;
+        return;
+      } else {
         this.userScrolling = false;
-        this.doOnTouchStart(event);
-      });
+        event.preventDefault();
+      }
+      offsetLeft = Math.min(
+        Math.max(-dragState.pageWidth + 1, offsetLeft),
+        dragState.pageWidth - 1
+      );
 
-      element.addEventListener('touchmove', (event) => {
-        if (!this.dragging) return;
-        this.doOnTouchMove(event);
-      });
+      var towards = offsetLeft < 0 ? "next" : "prev";
 
-      element.addEventListener('touchend', (event) => {
-        if (this.userScrolling) {
-          this.dragging = false;
-          this.dragState = {};
-          return;
+      if (dragState.prevPage && towards === "prev") {
+        this.translate(dragState.prevPage, offsetLeft - dragState.pageWidth);
+      }
+      this.translate(dragState.dragPage, offsetLeft);
+      if (dragState.nextPage && towards === "next") {
+        this.translate(dragState.nextPage, offsetLeft + dragState.pageWidth);
+      }
+    },
+
+    doOnTouchEnd() {
+      if (this.noDrag || this.disabled) return;
+
+      var dragState = this.dragState;
+
+      var dragDuration = new Date() - dragState.startTime;
+      var towards = null;
+
+      var offsetLeft = dragState.currentLeft - dragState.startLeft;
+      var offsetTop = dragState.currentTop - dragState.startTop;
+      var pageWidth = dragState.pageWidth;
+      var index = this.index;
+      var pageCount = this.pages.length;
+
+      if (dragDuration < 300) {
+        let fireTap = Math.abs(offsetLeft) < 5 && Math.abs(offsetTop) < 5;
+        if (isNaN(offsetLeft) || isNaN(offsetTop)) {
+          fireTap = true;
         }
-        if (!this.dragging) return;
-        this.doOnTouchEnd(event);
-        this.dragging = false;
+        if (fireTap) {
+          this.$children[this.index].$emit("tap");
+        }
+      }
+
+      if (dragDuration < 300 && dragState.currentLeft === undefined) return;
+
+      if (dragDuration < 300 || Math.abs(offsetLeft) > pageWidth / 2) {
+        towards = offsetLeft < 0 ? "next" : "prev";
+      }
+
+      if (!this.continuous) {
+        if (
+          (index === 0 && towards === "prev") ||
+          (index === pageCount - 1 && towards === "next")
+        ) {
+          towards = null;
+        }
+      }
+
+      if (this.$children.length < 2) {
+        towards = null;
+      }
+
+      this.doAnimate(towards, {
+        offsetLeft: offsetLeft,
+        pageWidth: dragState.pageWidth,
+        prevPage: dragState.prevPage,
+        currentPage: dragState.dragPage,
+        nextPage: dragState.nextPage
       });
-      // for mobile
-      element.addEventListener('touchstart', this.dragStartEvent);
-      element.addEventListener('touchmove', this.dragMoveEvent);
-      element.addEventListener('touchend', this.dragEndEvent);
-      // for pc
-      element.addEventListener('mousedown', this.dragStartEvent);
-      element.addEventListener('mousemove', this.dragMoveEvent);
-      element.addEventListener('mouseup', this.dragEndEvent);
+
+      this.dragState = {};
+    },
+
+    dragStartEvent(event) {
+      if (this.prevent) {
+        event.preventDefault();
+      }
+      if (this.animating) return;
+      this.dragging = true;
+      this.userScrolling = false;
+      this.doOnTouchStart(event);
+    },
+
+    dragMoveEvent(event) {
+      if (!this.dragging) return;
+      this.doOnTouchMove(event);
+    },
+
+    dragEndEvent(event) {
+      if (this.userScrolling) {
+        this.dragging = false;
+        this.dragState = {};
+        return;
+      }
+      if (!this.dragging) return;
+      this.doOnTouchEnd(event);
+      this.dragging = false;
     }
-  };
+  },
+
+  destroyed() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+    if (this.reInitTimer) {
+      clearTimeout(this.reInitTimer);
+      this.reInitTimer = null;
+    }
+  },
+  mounted() {
+    this.ready = true;
+
+    if (this.auto > 0) {
+      this.timer = setInterval(() => {
+        if (!this.dragging && !this.animating) {
+          this.next();
+        }
+      }, this.auto);
+    }
+
+    this.reInitPages();
+
+    var element = this.$el;
+
+    element.addEventListener("touchstart", event => {
+      if (this.prevent) {
+        event.preventDefault();
+      }
+      if (this.propagation) {
+        event.stopPropagation();
+      }
+      if (this.animating) return;
+      this.dragging = true;
+      this.userScrolling = false;
+      this.doOnTouchStart(event);
+    });
+
+    element.addEventListener("touchmove", event => {
+      if (!this.dragging) return;
+      this.doOnTouchMove(event);
+    });
+
+    element.addEventListener("touchend", event => {
+      if (this.userScrolling) {
+        this.dragging = false;
+        this.dragState = {};
+        return;
+      }
+      if (!this.dragging) return;
+      this.doOnTouchEnd(event);
+      this.dragging = false;
+    });
+    // for mobile
+    element.addEventListener("touchstart", this.dragStartEvent);
+    element.addEventListener("touchmove", this.dragMoveEvent);
+    element.addEventListener("touchend", this.dragEndEvent);
+    // for pc
+    element.addEventListener("mousedown", this.dragStartEvent);
+    element.addEventListener("mousemove", this.dragMoveEvent);
+    element.addEventListener("mouseup", this.dragEndEvent);
+  }
+};
 </script>

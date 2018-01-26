@@ -1,15 +1,10 @@
 
     <script>
-    import store from '../store'
-    import {getPhotoJson as addPhotoJsonAction } from '../actions/todos'
-    import {getTipJson as addTipJsonAction } from '../actions/todos'
+   
     import PhotoSlide from './ImageSlide'
     import TipSlide from './TipSlide'
-    import PreSlide from './PreSlide'
-    import {connect} from 'redux-vue'
-    import axios from 'axios'
+    import PreSlide from './PreSlide'    
     import {hasClass, addClass, removeClass} from '../libraries/lib'
-    var routerObj = null;
     var AnimateStart = null;
 
     function imageSlideRenderList(h,slideImages,slideTips) {
@@ -57,46 +52,6 @@
         )
     }   
 
-    function checkparam () {
-        if(Object.keys(routerObj.$route.params).length>0){            
-            var param = routerObj.$route.params.id
-        }else{
-            var param = 'nokey'
-        }  
-        return param
-    }
-    function addStoreJson() {
-             
-        var param = checkparam()             
-        //get new latest photojson and save preImageStore
-        axios.get('http://159.89.180.81/app/ajax.php?method=getjson&param='+param)
-            .then(response => {
-                if(response.data != "noStream"){
-                    store.dispatch(addPhotoJsonAction(response.data))
-                }else{
-                    routerObj.redirectRouter();
-                }               
-            })
-            .catch(e =>{
-                console.log("PhotoStreamError",e)
-            })
-            setTimeout(addStoreJson, 100000)
-    }
-
-    function addTipstorJson() {
-        var param = checkparam()
-        axios.get('http://159.89.180.81/app/ajax.php?method=tipjson&param='+param)
-            .then(response => { 
-                if(response.data != "noConfig"){
-                    store.dispatch(addTipJsonAction(response.data))
-                }
-            })
-            .catch(e =>{
-                console.log("TipContenterror",e)
-            })
-    }
-  
-  
     export default {
         data () {
         return {
@@ -107,9 +62,11 @@
                 start:false,
                 currentNumber: 0,
                 timer: null,            
-                animates: [        
-                    'animated zoomInUp',
-                    'animated jello',
+                animates: [      
+                     'animated lightSpeedIn',  
+                    'animated fadeInLeft',
+                    'animated slideInDown',
+                    'animated zoomIn',
                     'animated bounceInRight',
                     'animated rotateInUpLeft',                
                     'animated rollIn ',
@@ -117,9 +74,9 @@
                     'animated zoomInLeft',
                     'animated flipInX',
                     'animated slideInUp',
-                    'animated lightSpeedIn',
+                   
                     'animated rotateInDownLeft',
-                    'animated tada',
+                    'animated fadeInRight',
                     'animated zoomInDown'             
                 ],
                 loadDom: '',
@@ -207,15 +164,9 @@
             )
         },
 
-        beforeCreate(){
-            routerObj = this;
-            addStoreJson();
-            addTipstorJson();          
-        },
-
         created() {
-            store.subscribe(()=>{
-                let preReduxStore =store.getState()
+            this.$store.subscribe(() => {
+                let preReduxStore =this.$store.getState()
                 let photoData = preReduxStore.jsonStore.photoData
                 let tipData = preReduxStore.jsonStore.tipData
                 if(Object.keys(photoData).length>0 && Object.keys(tipData).length>0) {
@@ -249,10 +200,11 @@
                     this.preImagebar.prebarStatus = tipData.prebarSetting.prebarStatus  
                 
                 }                                     
-            })        
+            })
         },
 
         updated () {
+            
             
             if(!this.slideImages.start ) {           
                 this.startAnimation();           
@@ -281,11 +233,7 @@
         },
 
         methods: {     
-            // redirect error page
-            redirectRouter: function(obj) {
-                location.href = '/nodata'            
-            },
-
+           
             //------------photo slide animation and transition----------------//
             startAnimation: function() {
                 this.replacePhotos()
@@ -346,10 +294,15 @@
                 var self = this
 
                 NImage.onload = function(){                
-                    var newImage = NImage                
-                    if(self.slideTips.sidebarMode == 'static'){
-                        var windowHeight = window.innerHeight 
-                        var windowWidth = window.innerWidth - 300
+                    var newImage = NImage  
+                    if(self.slideTips.sidebarStatus == 'on'){
+                        if(self.slideTips.sidebarMode == 'static'){
+                            var windowHeight = window.innerHeight 
+                            var windowWidth = window.innerWidth - 300
+                        }else{
+                            var windowHeight = window.innerHeight
+                            var windowWidth = window.innerWidth
+                        }
                     }else{
                         var windowHeight = window.innerHeight
                         var windowWidth = window.innerWidth

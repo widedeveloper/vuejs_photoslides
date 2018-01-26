@@ -5,7 +5,7 @@ import reducers from './reducers/index'
 import {createLogger} from 'redux-logger'
 
 const createStoreWithMiddleware = applyMiddleware(
-    createLogger()
+    // createLogger()
 )
 
 import * as actions from './actions/todos'

@@ -8,7 +8,6 @@
 
 <script>
 import Vue from "vue";
-import store from "../store";
 import { connect } from "redux-vue";
 import VueAwesomeswiper from "vue-awesome-swiper";
 import { hasClass, addClass, removeClass } from "../libraries/lib";
@@ -35,7 +34,7 @@ export default {
   props: ["currentNumber"],
   watch: {
     currentNumber: function(newval, ovval) {
-        console.log("prpochange", newval, ovval);
+        // console.log("prpochange", newval, ovval);
         var loadDom = [];
         var imageUrl = [];
         if (this.slidepreImgs.length > 0) {
@@ -111,16 +110,15 @@ export default {
     }
   },
   beforeCreate() {
-    store.subscribe(() => {
-      let photoData = store.getState().jsonStore.photoData;
+    this.$store.subscribe(() => {
+      let photoData = this.$store.getState().jsonStore.photoData;
       if (Object.keys(photoData).length > 0) {
         this.slidepreImgs = photoData;
-        console.log("imageslidesFrom stor", this.slidepreImgs);
       }
     });
   },
   mounted() {
-    console.log(this.currentNumber);
+    // console.log(this.currentNumber);
   }
 };
 </script>
