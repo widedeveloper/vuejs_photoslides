@@ -3,22 +3,28 @@
    
     import PhotoSlide from './ImageSlide'
     import TipSlide from './TipSlide'
-    import PreSlide from './PreSlide'    
+    import PreSlide from './PreSlide'  
+    import BlankPage from './BlankPage';
     import {hasClass, addClass, removeClass} from '../libraries/lib'
     var AnimateStart = null;
 
-    function imageSlideRenderList(h,slideImages,slideTips) {
-        return (
-                      
-                <PhotoSlide 
-                    slide = {slideImages.loadDom}
-                    animate={slideImages.animates[Math.abs(slideImages.currentNumber) % slideImages.animates.length]}
-                    zIndex ={slideImages.loadDom.length}
-                    sidebarMode = {slideTips.sidebarMode}
-                />           
-               
-        )   
-    }
+    // function imageSlideRenderList(h,slideImages,slideTips) {
+    //      if(slideImages.images.length>0){
+    //          return (                    
+    //             <PhotoSlide 
+    //                 slide = {slideImages.loadDom}
+    //                 animate={slideImages.animates[Math.abs(slideImages.currentNumber) % slideImages.animates.length]}
+    //                 zIndex ={slideImages.loadDom.length}
+    //                 sidebarMode = {slideTips.sidebarMode}
+    //             /> 
+    //         )   
+    //      } else {
+    //          return (
+    //              <BlankPage />
+    //          )
+    //      }
+        
+    // }
 
     function tipSlideRenderList(h, slideTips) {
        
@@ -26,7 +32,11 @@
             <article class="tipslide"> 
                 <div class="image-container" >
                     <div class="slideToparea" style={{'background-color': slideTips.topBackColor}}>
-                        <img src={slideTips.imgUrl}  alt={slideTips.sidebarTitle} />
+                        <div class="sidelogImage">
+                            <img src={slideTips.imgUrl}  alt={slideTips.sidebarTitle} 
+                                // style={{'width':slideTips.logoWidth +'%', 'margin':(100-slideTips.logoWidth)/2 + '%'}}/>
+                                style={{'width':slideTips.logoWidth +'%'}}/>
+                        </div>
                         <div class="sidetitle" style={{'color': slideTips.titleColor}}>{slideTips.sidebarTitle}</div>
                         <div class="subtitle" style={{'color': slideTips.subColor}}>{slideTips.sidebarSubTitle}</div>
                     </div>
@@ -99,7 +109,8 @@
                 subColor:'',
                 tipColor:'',
                 bottomBackColor:'',
-                topBackColor:''
+                topBackColor:'',
+                logoWidth:''
             },
             logoInfo: {
                 logoStatus : '',
@@ -126,7 +137,12 @@
                             <div class="row">
                                 <div id="photoarea" >
                                     <div class="photoslide">                                    
-                                        
+                                        {
+                                            (this.slideImages.preimages.length == 0)?
+                                        <BlankPage sidebarStatus ={this.slideTips.sidebarStatus} sidebarMode = {this.slideTips.sidebarMode}/>
+                                        :
+                                        ''
+                                        }
                                     </div>                                  
                                     <div class="preslide" >
                                         {preBarRenderList(h, this.preImagebar,this.slideImages)} 
@@ -169,9 +185,11 @@
                 let preReduxStore =this.$store.getState()
                 let photoData = preReduxStore.jsonStore.photoData
                 let tipData = preReduxStore.jsonStore.tipData
-                if(Object.keys(photoData).length>0 && Object.keys(tipData).length>0) {
-                    this.slideImages.preimages = photoData
-            
+                if(Object.keys(photoData).length>0) {
+                     this.slideImages.preimages = photoData 
+                }
+                if(Object.keys(tipData).length>0) {
+                    // this.slideImages.preimages = photoData               
                     //sidebar setting
                     this.slideTips.tipcontents = tipData.tipcontents
                     this.slideTips.sidebarTitle=tipData.sidebarTitle
@@ -185,8 +203,8 @@
                     this.slideTips.subColor= tipData.sidebarSetting.subColor
                     this.slideTips.tipColor= tipData.sidebarSetting.tipColor
                     this.slideTips.topBackColor= tipData.sidebarSetting.topBackColor
+                    this.slideTips.logoWidth= tipData.sidebarSetting.logoWidth
                     this.slideTips.bottomBackColor= tipData.sidebarSetting.bottomBackColor
-
                     //logo Setting
                     this.logoInfo.logoStatus= tipData.logoSetting.logoStatus
                     this.logoInfo.logoUrl= tipData.logoSetting.logoUrl  
@@ -197,18 +215,29 @@
                     this.bottomInfo.subColor = tipData.bottombarSetting.subColor        
                     this.bottomInfo.backgroundColor = tipData.bottombarSetting.backgroundColor     
                     //prebar setting
-                    this.preImagebar.prebarStatus = tipData.prebarSetting.prebarStatus  
-                
+                    this.preImagebar.prebarStatus = tipData.prebarSetting.prebarStatus                  
                 }                                     
             })
         },
 
-        updated () {
+        updated () {   
+            if(this.slideImages.preimages.length == 0){  
+                this.$store.subscribe(() => {
+                    let preReduxStore =this.$store.getState()
+                    let photoData = preReduxStore.jsonStore.photoData
+                    if(Object.keys(photoData).length>0 && !this.slideImages.start) {
+                        this.slideImages.preimages = photoData 
+                         this.startAnimation();           
+                    }    
+                })     
+            }
+            else{
+                if(!this.slideImages.start ) {    
+                    this.startAnimation();           
+                } 
+            }
             
             
-            if(!this.slideImages.start ) {           
-                this.startAnimation();           
-            } 
             if (this.slideTips.sidebarStatus=='on'){
                 this.initSidebar()
             }
@@ -272,7 +301,7 @@
                 return result;
             },
             nextAnimation: function() {      
-                
+                // console.log('nextanimati')
                 //after finish current image loading, get new latest json photos
                 if(this.slideImages.currentNumber % this.slideImages.images.length == 0){
                     this.slideImages.currentNumber += 1                            

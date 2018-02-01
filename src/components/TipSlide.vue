@@ -48,6 +48,8 @@
                 bottomTitleObj.style.width = (windowWidth - bottomImgObj.clientWidth) + 'px'    
                 document.getElementById('photoarea').style.height = (windowHeight) + 'px';
                 document.getElementById('tiparea').style.height = (windowHeight) + 'px';
+                document.getElementById('wrap').style.width = windowWidth - 300 +'px;'
+                document.getElementById('wrap').style.height = windowHeight +'px;'
 
                 TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight -70) + 'px'; 
             }
@@ -88,11 +90,12 @@
         /* background-color:#ffffff;   */
         height:100%;
     }
+    .slideToparea .sidelogImage{
+        text-align: center;
+    }
     .image-container img {        
-        position:relative;
-      
-        width:100%;
-
+        position:relative;      
+        /* width:100%; */
         border-radius: 8px;
         -moz-box-shadow:     0px 0px 8px 0px #ccc;
         -webkit-box-shadow:  0px 0px 8px 0px #ccc;

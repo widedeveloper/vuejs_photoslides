@@ -12,12 +12,16 @@ import { getTipJson as addTipJsonAction } from "./actions/todos";
 export default {
   name: "app",
   data() {
-    return {};
+    return {
+    };
   },
   created() {
-    // routerObj = this;
-    this.addStoreJson();
+    // routerObj = this; 
+    // if(this.$route.params.id == "admin") {
+    //    location.href = "http://"+window.location.hostname + "/manage/";returnk
+    // }   
     this.addTipstorJson();
+    this.addStoreJson();
   },
   methods: {
     addStoreJson() {
@@ -25,12 +29,14 @@ export default {
       var param = this.$route.params.id;
       //get new latest photojson and save preImageStore
       axios
+        // .get("http://159.89.180.81/app/ajax.php?method=getjson&param=" + param)
         .get("/app/ajax.php?method=getjson&param=" + param)
         .then(response => {
           if (response.data != "noStream") {
             this.$store.dispatch(addPhotoJsonAction(response.data));
           } else {
-            location.href = "http://"+window.location.hostname + "/error.html";
+            // location.href = "http://"+window.location.hostname + "/error.html";
+            setTimeout(this.addStoreJson, 10000);
           }
         })
         .catch(e => {
@@ -43,6 +49,7 @@ export default {
       var param = this.$route.params.id;
       var self = this;
       axios
+        // .get("http://159.89.180.81/app/ajax.php?method=tipjson&param=" + param)
         .get("/app/ajax.php?method=tipjson&param=" + param)
         .then(response => {
           if (response.data != "noConfig") {
