@@ -1,14 +1,10 @@
  
- <template>
-    
+ <template>    
       <div id="wrap" v-bind:style="{'width':winsize.width+'px', 'height':winsize.height + 'px'}">
-
         <!-- PhotoButler Logo -->
         <img id="branding" src="/assets/photobutler-logo.png">
         <!-- /PhotoButler Logo -->
       </div>
- 
-
  </template>
  <script>
 export default {
@@ -19,10 +15,11 @@ export default {
 
   computed: {
     winsize() {
+      var sidebarWidth = document.getElementById('tiparea').clientWidth;
       if (this.sidebarStatus == "on") {
         if (this.sidebarMode == "static") {
           var windowHeight = window.innerHeight;
-          var windowWidth = window.innerWidth - 300;
+          var windowWidth = window.innerWidth - sidebarWidth;
         } else {
           var windowHeight = window.innerHeight;
           var windowWidth = window.innerWidth;

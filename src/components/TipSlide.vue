@@ -37,21 +37,34 @@
       
         methods: {
             getFullHeight() {
+                console.log("resizing")
                
                 var windowHeight = window.innerHeight
                 var windowWidth = window.innerWidth
+                 var sidebarWidth = document.getElementById('tiparea').clientWidth;
                 var TipObj = document.getElementsByClassName('mint-swipe')[0];
                 var ImageContentObj = document.getElementsByClassName('image-container')[0];
                 var TiptitleObj = document.getElementsByClassName('Tiptitle')[0]
-                var bottomTitleObj = document.getElementsByClassName('bottomtitle')[0]
-                var bottomImgObj = document.getElementsByClassName('bottomImageDiv')[0]
-                bottomTitleObj.style.width = (windowWidth - bottomImgObj.clientWidth) + 'px'    
+                // var bottomTitleObj = document.getElementsByClassName('bottomtitle')[0]
+                // var bottomImgObj = document.getElementsByClassName('bottomImageDiv')[0]
+                // bottomTitleObj.style.width = (windowWidth - bottomImgObj.clientWidth) + 'px'    
                 document.getElementById('photoarea').style.height = (windowHeight) + 'px';
                 document.getElementById('tiparea').style.height = (windowHeight) + 'px';
-                document.getElementById('wrap').style.width = windowWidth - 300 +'px;'
-                document.getElementById('wrap').style.height = windowHeight +'px;'
-
-                TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight -70) + 'px'; 
+                // document.getElementById('wrap').style.width = windowWidth - sidebarWidth +'px;'
+                // document.getElementById('wrap').style.height = windowHeight +'px;'
+                var logoImage = document.getElementsByClassName('logoImage')[0];
+                if(windowWidth<441){
+                    // logoImage.style.width = logoImage.naturalWidth/2 + 'px';
+                     TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight-30) + 'px'; 
+                }else if(windowWidth>=441 && windowWidth<768){
+                    //  logoImage.style.width = logoImage.naturalWidth/2 + 'px';
+                    TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight-20) + 'px'; 
+                }else if(windowWidth>=768 && windowWidth<=1920){
+                    TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight-70) + 'px'; 
+                }else{
+                    TipObj.style.height = (windowHeight - ImageContentObj.clientHeight - TiptitleObj.clientHeight-70) + 'px'; 
+                }
+               
             }
         }       
     }
@@ -59,61 +72,5 @@
 </script>
 
 <style>
-    .tipItem {    
-        
-        display:block;
-    }
-    .teaser {
-       
-        /* color:#fff; */
-        /* background:#3a5375;  */
-       
-    }
-    .teaser .tipConarea {
-         padding:35px;
-    }
-    .teaser .Tiptitle{
-       /* margin-bottom: 30px;*/
-        font-size:25px;
-        font-family: "SF-Pro-Text-bold"
-    }
-    .teaser .tipcontent {
-        font-family: "SF-Pro-Text-Regular";
-        font-size:20px;
-    }
-    .image-container {       
-         
-        height:380px; 
-    }
-    .image-container .slideToparea {
-        padding: 35px;
-        /* background-color:#ffffff;   */
-        height:100%;
-    }
-    .slideToparea .sidelogImage{
-        text-align: center;
-    }
-    .image-container img {        
-        position:relative;      
-        /* width:100%; */
-        border-radius: 8px;
-        -moz-box-shadow:     0px 0px 8px 0px #ccc;
-        -webkit-box-shadow:  0px 0px 8px 0px #ccc;
-        box-shadow: 0px 0px 8px 0px #ccc;
-    }
-
-    .image-container .sidetitle{
-        padding-top:20px;
-        /* color : #c62033; */
-        font-size:25px;
-       
-        font-family: "SF-Pro-Text-bold"
-    }
-    .image-container .subtitle{
-        padding-top:14px;
-        color : #617185;
-        
-        font-size:25px;
-        font-family: "SF-Pro-Text-regular"
-    }
+   
 </style>

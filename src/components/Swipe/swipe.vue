@@ -1,8 +1,10 @@
-<style>
+<style lang="scss" >
+$scaleW :1636;
+$scaleH :845;
 .mint-swipe {
   overflow: hidden;
   position: relative;
-  height: 0px;
+  /* height: 0px; */
   margin-top: 30px;
 }
 .mint-swipe-items-wrap {
@@ -44,6 +46,29 @@
 }
 .is-active {
   /* border:solid 1px */
+}
+@media (max-width:767px) {
+  .mint-swipe-indicator {
+    width: 16px;
+    height: 16px;   
+    line-height: 16px;
+    font-size: 13px;
+  }
+  .mint-swipe{
+    margin-top:10px;
+  }
+}
+@media (min-width:1636px) {
+  .mint-swipe-indicator {
+    width:  calc(100vh/#{$scaleH}*23);
+    height: calc(100vh/#{$scaleH}*23);
+    line-height: calc(100vh/#{$scaleH}*23);
+    font-size: calc(100vh/#{$scaleH}*16);
+    margin-bottom: calc(100vh/#{$scaleH}*10);
+  }
+  .mint-swipe{
+    margin-top:10px;
+  }
 }
 </style>
 
