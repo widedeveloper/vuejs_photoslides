@@ -11,15 +11,26 @@ export default {
   data() {
     return {};
   },
-  props: ["sidebarStatus", "sidebarMode"],
+  props: ["sidebarStatus", "sidebarMode",'length'],
 
   computed: {
     winsize() {
-      var sidebarWidth = document.getElementById('tiparea').clientWidth;
+      if(this.lenght == 0){
+        var sidebarWidth = document.getElementById('tiparea').clientWidth;
+      }else{
+         var sidebarWidth = 300;
+      }
+     
       if (this.sidebarStatus == "on") {
         if (this.sidebarMode == "static") {
+
           var windowHeight = window.innerHeight;
-          var windowWidth = window.innerWidth - sidebarWidth;
+          if(window.innerWidth>441){
+            var windowWidth = window.innerWidth - sidebarWidth;
+          }else{
+            var windowWidth = window.innerWidth ;
+          }
+          
         } else {
           var windowHeight = window.innerHeight;
           var windowWidth = window.innerWidth;

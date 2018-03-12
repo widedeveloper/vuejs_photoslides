@@ -4,6 +4,8 @@ import PhotoSlide from "./ImageSlide";
 import TipSlide from "./TipSlide";
 import PreSlide from "./PreSlide";
 import BlankPage from "./BlankPage";
+import Bottom from "./BottomBar";
+
 import { hasClass, addClass, removeClass } from "../libraries/lib";
 var AnimateStart = null;
 
@@ -137,9 +139,12 @@ export default {
       bottomInfo: {
         bottombarStatus: "",
         bottomImageUrl: "",
+        imgBackgroundColor: "",
         titleColor: "",
         subColor: "",
-        backgroundColor: ""
+        backgroundColor: "",
+        slideStatus: "in",
+        flag: false
       },
       preImagebar: {
         prebarStatus: ""
@@ -159,6 +164,7 @@ export default {
                     <BlankPage
                       sidebarStatus={this.slideTips.sidebarStatus}
                       sidebarMode={this.slideTips.sidebarMode}
+                      lengh={this.slideImages.preimages.length}
                     />
                   ) : (
                     ""
@@ -180,36 +186,69 @@ export default {
                 </div>
               </div>
 
-              <div id="bottomarea" class="initbottomOut">
-                <div class="bottomImageDiv">
-                  <img class="btmImage" src={this.bottomInfo.bottomImageUrl} />
-                </div>
-                <div
-                  class="bottomtitle"
-                  style={{ "background-color": this.slideTips.bottomBackColor }}
-                >
+              {this.$route.params.id == "8335" ? (
+               
+                <Bottom
+                  slideTips={this.slideTips}
+                  bottomInfo={this.bottomInfo}
+                />
+              ) : (
+               
+                <div id="bottomarea" class="initbottomOut">
                   <div
-                    class="bottitle"
-                    style={{ color: this.bottomInfo.titleColor }}
+                    class="bottomImageDiv"
+                    style={{
+                      "background-color": this.bottomInfo.imgBackgroundColor
+                    }}
                   >
-                    <div style="display:table-cell;vertical-align:middle;">
-                      {this.slideTips.sidebarTitle}
-                    </div>
+                    <img
+                      class="btmImage"
+                      src={this.bottomInfo.bottomImageUrl}
+                    />
                   </div>
                   <div
-                    class="subtitle"
-                    style={{ color: this.bottomInfo.subColor }}
+                    class="bottomtitle"
+                    style={{
+                      "background-color": this.bottomInfo.backgroundColor
+                    }}
                   >
-                    <div style="display:table-cell;vertical-align:middle;">
-                      {this.slideTips.sidebarSubTitle}
+                    <div
+                      class="bottitle"
+                      style={{ color: this.bottomInfo.titleColor }}
+                    >
+                      <div style="display:table-cell;vertical-align:middle;">
+                        {this.slideTips.sidebarTitle}
+                      </div>
+                    </div>
+                    <div
+                      class="subtitle"
+                      style={{ color: this.bottomInfo.subColor }}
+                    >
+                      <div style="display:table-cell;vertical-align:middle;">
+                        {this.slideTips.sidebarSubTitle}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          <div class="logo leftbottom logofadeIn">
+          <div
+            class="logo leftbottom logofadeIn"
+            style={{
+              width:
+                window.innerWidth > 442
+                  ? this.logoInfo.mainlogoImgWidth *
+                      (window.innerWidth / 1636 * 160) /
+                      100 +
+                    "px"
+                  : this.logoInfo.mainlogoImgWidth *
+                      (window.innerWidth / 1636 * 350) /
+                      100 +
+                    "px"
+            }}
+          >
             <img class="logoImage" src={this.logoInfo.logoUrl} />
           </div>
         </section>
@@ -229,6 +268,7 @@ export default {
         // this.slideImages.preimages = photoData
         //sidebar setting
         this.slideTips.tipcontents = tipData.tipcontents;
+
         this.slideTips.sidebarTitle = tipData.sidebarTitle;
         this.slideTips.sidebarSubTitle = tipData.sidebarSubTitle;
         this.slideTips.imgUrl = tipData.imgUrl;
@@ -245,12 +285,17 @@ export default {
         //logo Setting
         this.logoInfo.logoStatus = tipData.logoSetting.logoStatus;
         this.logoInfo.logoUrl = tipData.logoSetting.logoUrl;
+        this.logoInfo.mainlogoImgWidth = tipData.logoSetting.mainlogoImgWidth;
         //bottombar Setting
+
         this.bottomInfo.bottombarStatus =
           tipData.bottombarSetting.bottombarStatus;
+        this.bottomInfo.bottombarMode = tipData.bottombarSetting.bottombarMode;
         this.bottomInfo.bottomImageUrl = tipData.bottombarSetting.bottomUrl;
         this.bottomInfo.titleColor = tipData.bottombarSetting.titleColor;
         this.bottomInfo.subColor = tipData.bottombarSetting.subColor;
+        this.bottomInfo.imgBackgroundColor =
+          tipData.bottombarSetting.bottomlogoBackColor;
         this.bottomInfo.backgroundColor =
           tipData.bottombarSetting.backgroundColor;
         //prebar setting
@@ -275,16 +320,18 @@ export default {
       }
     }
 
-    if (this.slideTips.sidebarStatus == "on") {
-      this.initSidebar();
-    }
     if (
+      this.slideTips.sidebarStatus == "on" &&
+      this.slideTips.sidebarMode == "static"
+    ) {
+      this.initSidebar();
+    } else if (
       this.slideTips.sidebarStatus == "on" &&
       this.slideTips.sidebarMode == "dynamic"
     ) {
+      this.initSidebar();
       if (this.slideTips.slideStatus == "in" && !this.slideTips.flag) {
         this.slideTips.flag = true;
-
         this.slideTips.slideOutTimer = setTimeout(
           this.SlideOutAnimation,
           this.slideTips.slidesIn * 1000
@@ -297,7 +344,20 @@ export default {
         );
       }
     } else if (this.slideTips.sidebarStatus == "off") {
-      this.hiddenSidebar();
+      if (this.bottomInfo.bottombarStatus == "off") {
+        this.hiddenSidebar();
+      } else if (
+        this.bottomInfo.bottombarStatus == "on" &&
+        this.bottomInfo.bottombarMode == "static"
+      ) {
+        this.initBottombar();
+      } else if (
+        this.bottomInfo.bottombarStatus == "on" &&
+        this.bottomInfo.bottombarMode == "dynamic"
+      ) {
+        //console.log(this.bottomInfo.slideStatus,this.bottomInfo.flag,Date())
+        this.dynmicOnlyBottom();
+      }
     }
   },
 
@@ -361,10 +421,14 @@ export default {
       }
 
       var NImage = new Image();
-      NImage.src = this.slideImages.images[
+      var image_source = this.slideImages.images[
         Math.abs(this.slideImages.currentNumber) %
           this.slideImages.images.length
       ];
+      ///////////////
+      console.log(this.imageExists(image_source), image_source);
+      //////////////
+      NImage.src = image_source;
       NImage.setAttribute(
         "class",
         this.slideImages.animates[
@@ -432,6 +496,16 @@ export default {
     },
     //-------------------photo animation and transition--------------------//
 
+    /////////////
+    imageExists: function(url) {
+      var http = new XMLHttpRequest();
+      http.open("HEAD", url, false);
+      http.send();
+
+      return http.status;
+    },
+    /////////////////
+
     getImageSize: function() {
       //photo image width
       let containerWidth = document.getElementsByClassName("container")[0]
@@ -451,13 +525,40 @@ export default {
       var SidebarObj = document.getElementById("tiparea");
       addClass(SidebarObj, "slideInit");
     },
-    SlideOutAnimation: function() {
-      var SidebarObj = document.getElementById("tiparea");
+    initBottombar: function() {
       var BottombarObj = document.getElementById("bottomarea");
       var logoObj = document.getElementsByClassName("logo")[0];
+      removeClass(BottombarObj, "bottomOut");
+      removeClass(BottombarObj, "initbottomOut");
+      addClass(BottombarObj, "bottomIn");
+      removeClass(logoObj, "logofadeIn");
+      // removeClass(logoObj, "leftbottom");
+      // addClass(logoObj, "topright");
+    },
 
+    SlideOutAnimation: function() {
+      var SidebarObj = document.getElementById("tiparea");
       removeClass(SidebarObj, "slideIn");
       addClass(SidebarObj, "slideOut");
+      if (this.bottomInfo.bottombarStatus == "on") {
+        setTimeout(this.BottomInAnimation, this.slideTips.stays * 1000);
+      } else {
+        this.slideTips.slideStatus = "out";
+      }
+    },
+
+    SlideInAnimation: function() {
+      var SidebarObj = document.getElementById("tiparea");
+      setTimeout(() => {
+        removeClass(SidebarObj, "slideOut");
+        addClass(SidebarObj, "slideIn");
+      }, 3000);
+      this.slideTips.slideStatus = "in";
+    },
+
+    BottomInAnimation: function() {
+      var BottombarObj = document.getElementById("bottomarea");
+      var logoObj = document.getElementsByClassName("logo")[0];
       if (this.bottomInfo.bottombarStatus == "on") {
         removeClass(logoObj, "logofadeIn");
         addClass(logoObj, "logofadeOut");
@@ -467,35 +568,26 @@ export default {
         if (this.bottomInfo.bottombarStatus == "on") {
           removeClass(BottombarObj, "bottomOut");
           addClass(BottombarObj, "bottomIn");
-
-          removeClass(logoObj, "leftbottom");
-          addClass(logoObj, "topright");
-          removeClass(logoObj, "logofadeOut");
-          addClass(logoObj, "logofadeIn");
+          // removeClass(logoObj, "leftbottom");
+          // addClass(logoObj, "topright");
+          // removeClass(logoObj, "logofadeOut");
+          // addClass(logoObj, "logofadeIn");
+          setTimeout(this.BottomOutAnimation, this.slideTips.slidesIn * 1000);
         }
-
         removeClass(BottombarObj, "initbottomOut");
       }, 3000);
-
-      this.slideTips.slideStatus = "out";
     },
 
-    SlideInAnimation: function() {
-      var SidebarObj = document.getElementById("tiparea");
+    BottomOutAnimation: function() {
       var BottombarObj = document.getElementById("bottomarea");
       var logoObj = document.getElementsByClassName("logo")[0];
       if (this.bottomInfo.bottombarStatus == "on") {
         removeClass(logoObj, "logofadeIn");
         addClass(logoObj, "logofadeOut");
-      }
-
-      if (this.bottomInfo.bottombarStatus == "on") {
         addClass(BottombarObj, "bottomOut");
         removeClass(BottombarObj, "bottomIn");
       }
       setTimeout(() => {
-        removeClass(SidebarObj, "slideOut");
-        addClass(SidebarObj, "slideIn");
         if (this.bottomInfo.bottombarStatus == "on") {
           removeClass(logoObj, "topright");
           addClass(logoObj, "leftbottom");
@@ -503,15 +595,40 @@ export default {
           addClass(logoObj, "logofadeIn");
         }
       }, 3000);
-      this.slideTips.slideStatus = "in";
-    }
+      // this.slideTips.slideStatus = "in";
+      this.slideTips.slideStatus = "out";
+    },
 
+    dynmicOnlyBottom: function() {
+      if (this.bottomInfo.slideStatus == "in" && !this.bottomInfo.flag) {
+        this.initBottombar();
+        this.bottomInfo.flag = true;
+        setTimeout(() => {
+          var BottombarObj = document.getElementById("bottomarea");
+          var logoObj = document.getElementsByClassName("logo")[0];
+          removeClass(logoObj, "logofadeOut");
+          addClass(logoObj, "logofadeIn");
+          removeClass(BottombarObj, "bottomIn");
+          addClass(BottombarObj, "bottomOut");
+          this.bottomInfo.slideStatus = "out";
+        }, this.slideTips.slidesIn * 1000);
+      } else if (this.bottomInfo.slideStatus == "out" && this.bottomInfo.flag) {
+        this.bottomInfo.flag = false;
+        setTimeout(() => {
+          var BottombarObj = document.getElementById("bottomarea");
+          var logoObj = document.getElementsByClassName("logo")[0];
+          removeClass(logoObj, "logofadeIn");
+          addClass(logoObj, "logofadeOut");
+          removeClass(BottombarObj, "bottomOut");
+          addClass(BottombarObj, "bottomIn");
+          this.bottomInfo.slideStatus = "in";
+        }, this.slideTips.stays * 1000);
+      }
+    }
     //-------------------SlideIn and SlideOut of Sidebar--------------------//
   }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss" scoped>
-@import "../scss/main.scss";
-</style>
+

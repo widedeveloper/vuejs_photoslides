@@ -33,6 +33,7 @@ export default {
         .get("/app/ajax.php?method=getjson&param=" + param)
         .then(response => {
           if (response.data != "noStream") {
+          //  console.log(response.data)
             this.$store.dispatch(addPhotoJsonAction(response.data));
           } else {
             // location.href = "http://"+window.location.hostname + "/error.html";

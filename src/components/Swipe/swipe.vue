@@ -95,7 +95,8 @@ export default {
   name: "mt-swipe",
   data() {
     return {
-      slideTips: {}
+      slideTips: {},
+      totalCount:0
     };
   },
 
@@ -104,6 +105,7 @@ export default {
       let tipData = this.$store.getState().jsonStore.tipData;
       if (Object.keys(tipData).length > 0) {
         this.slideTips = tipData;
+        this.totalCount = tipData.length;
       }
     });
   },
@@ -280,7 +282,7 @@ export default {
       for (var i = 0; i < Indicator.length; i++) {
         removeClass(Indicator[i], "is-active");
       }
-      if (index == 2) {
+      if (index == this.totalCount -1) {
         addClass(Indicator[0], "is-active");
       } else {
         addClass(Indicator[index + 1], "is-active");
